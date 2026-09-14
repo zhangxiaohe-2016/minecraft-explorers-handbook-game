@@ -1,4 +1,8 @@
-# 方境 · 探索者手记
+# Minecraft Explorer’s Handbook Game · 方境
+
+> 非官方 Minecraft 同人项目，与 Mojang Studios、Microsoft 或 Minecraft 官方没有隶属关系。
+
+关键词：Minecraft、Explorer’s Handbook、Minecraft Explorer’s Handbook、方境、3D、Godot、Godot 4、第一人称、探索、生存、村庄、交易、地图、中文游戏。
 
 基于用户提供的《Minecraft Explorer’s Handbook》内容规划的中文第一人称 3D 探索游戏。**当前 v0.2 包含“林地营地”与第二阶段“第一次平原远行”：补给、床、烹饪、村庄、交易、地图和返回。温带区域的其他场景及后续大章尚未实现。**
 
