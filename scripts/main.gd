@@ -107,6 +107,11 @@ func setup_light() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_C:
+			if hud.current_modal=="compass": close_modal()
+			elif hud.current_modal=="": journey.open_panel("compass")
+			get_viewport().set_input_as_handled()
+			return
 		if event.physical_keycode == KEY_ESCAPE:
 			if hud.current_modal == "": set_modal("pause")
 			else: close_modal()

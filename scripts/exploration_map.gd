@@ -21,6 +21,7 @@ func _draw() -> void:
 				color=Color("78935b") if world.height_at(wx,wz)<6 else Color("66765b")
 				if absf(wx-world.river_x(wz))<5:color=Color("488995")
 				if world.village_area(wx,wz):color=Color("9baf69")
+				if world.forest_area(wx,wz):color=Color("4c6545") if wz>22 else (Color("94ae71") if wz>10 else Color("adba72"))
 				if world.journey_road(wx,wz):color=Color("d5bd85")
 				for house in [Vector2(-34,-32),Vector2(-22,-36),Vector2(-36,-20)]:
 					if Rect2(house-Vector2(0.5,0.5),Vector2(5,5)).has_point(Vector2(wx,wz)):color=Color("8c653f")
@@ -32,6 +33,10 @@ func _draw() -> void:
 		var village:=Vector2(23,24)*5
 		draw_circle(village,7,Color("efe4c6"))
 	var location:=Vector2(player.position.x+48,player.position.z+48)*5
+	if state.has_flag("temperate_landmark"):
+		draw_rect(Rect2(Vector2(16,44)*5-Vector2(4,4),Vector2(8,8)),Color("b78449"))
+	for entry in [["flower",4],["birch",16],["dark",28]]:
+		if state.has_flag("forest_"+entry[0]):draw_circle(Vector2(18,48+entry[1])*5,4,Color("b8e68b"))
 	var direction:=Vector2(-sin(player.rotation.y),-cos(player.rotation.y))
 	var side:=Vector2(-direction.y,direction.x)
 	draw_colored_polygon(PackedVector2Array([location+direction*10,location-direction*6+side*5,location-direction*6-side*5]),Color("a94031"))

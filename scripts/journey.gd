@@ -12,6 +12,7 @@ var fuel_label: Label
 var hunger_label: Label
 var furnace_flame: Node3D
 var bed_added:=false
+var compass_display: CompassDisplay
 
 func _ready() -> void:
 	state=game.progress
@@ -37,6 +38,14 @@ func _ready() -> void:
 	furnace_flame.visible=false
 	hunger_label=game.hud.text(game.hud.root,"",Vector2(1007,748),Vector2(403,25),16,ExplorerHUD.CREAM)
 	game.hud.text(game.hud.root,"M  地图     F  食物",Vector2(1030,860),Vector2(340,22),13,ExplorerHUD.CREAM)
+	compass_display=CompassDisplay.new()
+	compass_display.position=Vector2(1240,142)
+	compass_display.size=Vector2(120,120)
+	compass_display.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	compass_display.player=game.player
+	compass_display.state=state
+	game.hud.root.add_child(compass_display)
+	compass_display.caption=game.hud.text(compass_display,"",Vector2(-115,130),Vector2(310,70),17,ExplorerHUD.CREAM)
 
 func stage() -> int:
 	if state.has_flag("journey_complete") and state.has_flag("temperate_landmark"):return 8
@@ -98,6 +107,21 @@ func update_quest() -> void:
 		game.hud.quest_body.text="先采集 8 圆石，在工作台制作熔炉。\n工作台附近按 E 摆放。\n再对准熔炉按 E，开始烹饪。\n成品收进背包后，按 F 可食用。"
 	game.hud.chapter_label.text="02  /  平原村庄      ·      第一次远行"
 	game.hud.clock_label.text="白昼 · 探索与归途"
+	if state.has_flag("journey_complete") and state.count("compass")>0:
+		game.hud.quest_number.text="森林考察  /  观察与返程"
+		game.hud.chapter_label.text="02  /  森林      ·      辨认与返程"
+		game.hud.quest_title.text="辨认三种森林"
+		game.hud.quest_body.text="沿瞭望台向南的林间路前进。\n对准各观察牌按 E 记录：\n繁花森林、白桦林、黑森林。\n右上红针始终指向世界出生点。"
+		if state.has_flag("forest_flower") and state.has_flag("forest_birch") and state.has_flag("forest_dark"):
+			game.hud.quest_title.text="用指南针回到出生点"
+			game.hud.quest_body.text="转身，让红针朝表盘上方。\n沿小路绕开树木，向营地前进。\n出生点在营地南侧入口。\n床不会改变普通指南针的指向。"
+			if game.player.active and Vector2(game.player.position.x+0.5,game.player.position.z-12).length()<2 and not state.has_flag("forest_complete"):
+				state.flags.forest_complete=true
+				state.save_game()
+				game.hud.toast("森林考察完成：你已辨认三种森林，并借助指南针返回！")
+		if state.has_flag("forest_complete"):
+			game.hud.quest_title.text="森林考察完成"
+			game.hud.quest_body.text="三种森林已记录，返程练习已完成。\n可再次访问观察牌温习。\n下一节：林地府邸（第 30–31 页）。\n府邸与战斗尚未开放。"
 
 func reveal_map() -> void:
 	var x:=int(floor((game.player.position.x+48)/4))
@@ -118,6 +142,7 @@ func hint() -> String:
 	if not state.has_flag("complete"):
 		return "远行内容\n完成第一夜后开放" if kind!="" else ""
 	match kind:
+		"forest":return "森林观察牌\nE  辨认与记录"
 		"chest":
 			var chest_id:=str(game.target.collider.get_meta("journey_id",""))
 			if chest_id=="lookout": return "瞭望台补给\nE  "+("已领取指南针" if state.has_flag("temperate_landmark") else "领取指南针")
@@ -155,6 +180,12 @@ func interact() -> bool:
 			state.flags.supplies=true
 			state.save_game()
 			game.hud.toast("收到：3 羊毛、8 木板、2 生牛肉、2 煤。先制作白色床。")
+		return true
+	if kind=="forest":
+		if not state.has_flag("journey_complete") or state.count("compass")==0:
+			game.hud.toast("先完成村庄往返，并在瞭望台领取指南针。")
+		else:
+			open_panel("forest_"+str(game.target.collider.get_meta("journey_id")))
 		return true
 	if kind=="bed":
 		var id: String=game.target.collider.get_meta("journey_id")
@@ -204,6 +235,9 @@ func respawn() -> void:
 	else: game.return_camp()
 
 func open_panel(kind: String) -> void:
+	if kind=="compass" and state.count("compass")==0:
+		game.hud.toast("还没有指南针。瞭望台补给箱可领取一枚。")
+		return
 	if kind in ["map","food"] and not state.has_flag("complete"):
 		game.hud.toast("先完成第一夜，接着学习补给和地图。")
 		return
@@ -214,9 +248,17 @@ func open_panel(kind: String) -> void:
 	var ui: ExplorerHUD=game.hud
 	var panel: Panel=ui.modal
 	var titles:={"furnace":"熔炉 · 烹饪与木炭","food":"旅途补给","farmer":"农夫 · 交谈与交易","cartographer":"制图师 · 地图与方向","map":"我的探索地图","journey_complete":"第一次远行，平安归来"}
+	titles.merge({"compass":"路线与方向","forest_flower":"森林观察手记","forest_birch":"森林观察手记","forest_dark":"森林观察手记"})
 	ui.text(panel,titles.get(kind,kind),Vector2(32,25),Vector2(780,48),30)
 	ui.button(panel,"返回  [Esc]",Rect2(838,28,170,43),"close")
 	match kind:
+		"compass":
+			ui.text(panel,"指南针 · 回到世界出生点",Vector2(40,105),Vector2(950,50),28,ExplorerHUD.GOLD)
+			ui.text(panel,"第 18 页：普通指南针指向世界出生点。\n\n领取后，右上角会自动显示表盘。红色针尖就是目标方向。\n转动视角，让红针朝表盘上方，再沿可通行的小路前进。\n\n本世界的出生点在营地南侧入口。睡床只改变床边重生点，\n不会改变普通指南针的方向。指南针也不负责指向任务目标。\n\n书中磁石可重新绑定指南针；磁石功能尚未实现。",Vector2(40,190),Vector2(950,380),22)
+		"forest_flower", "forest_birch", "forest_dark":
+			var descriptions := {"forest_flower":"繁花森林 · 第 28 页\n\n树木较疏，空地上有成簇的花。\n书中这些花可用来制造染料、装饰物品。\n本次先学习辨认景观，染料制作尚未开放。", "forest_birch":"白桦林 · 第 28 页\n\n白色树皮带深色斑纹，让林中显得更明亮。\n古老白桦林的树更高；本路线展示普通白桦林。\n可对准白桦树干，按住左键采集木材。", "forest_dark":"黑森林 · 第 28–29 页\n\n密集深色树冠遮蔽阳光，巨型蘑菇穿出林间。\n书中阴影里可能藏着敌对生物。\n当前为安全观察路线，怪物与战斗尚未开放。"}
+			ui.text(panel,descriptions[kind],Vector2(40,145),Vector2(950,300),25,ExplorerHUD.CREAM)
+			ui.button(panel,"记录这片森林",Rect2(40,515,950,65),"journey:observe:"+kind,true)
 		"furnace":
 			ui.text(panel,"依据第 9、14–15 页：燃料加热食材，也能把原木烧成木炭。",Vector2(34,92),Vector2(970,37),17,ExplorerHUD.MINT)
 			job_label=ui.text(panel,"",Vector2(40,156),Vector2(950,39),22,ExplorerHUD.GOLD)
@@ -286,6 +328,10 @@ func on_action(id: String) -> bool:
 	var result:=""
 	var panel: String=game.hud.current_modal
 	match parts[1]:
+		"observe":
+			state.flags[parts[2]]=true
+			state.save_game()
+			result="已记录。继续沿林间路观察其他森林。"
 		"cook":result=state.begin_smelting(parts[2])
 		"eat":result=state.eat(parts[2])
 		"trade":result=state.trade(parts[2])

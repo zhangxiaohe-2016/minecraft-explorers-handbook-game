@@ -28,6 +28,7 @@ func setup(state: ExpeditionProgress, library: ExplorerArt) -> void:
 	vegetation()
 	create_camp()
 	create_temperate_landmark()
+	create_forest_route()
 	restore()
 
 func river_x(z: float) -> float:
@@ -37,6 +38,7 @@ func height_at(x: int, z: int) -> int:
 	var river_distance := absf(float(x) - river_x(z))
 	if river_distance < 3.0: return 0
 	if river_distance < 4.5: return 1
+	if forest_area(x,z): return 2
 	if village_area(x,z) or journey_road(x,z): return 2
 	if x > -13 and x < 12 and z > -12 and z < 19: return 2
 	var hill := maxf(0.0, float(-z - 13) / 8.0)
@@ -45,8 +47,13 @@ func height_at(x: int, z: int) -> int:
 func village_area(x: float,z: float) -> bool:
 	return x>-39 and x<-10 and z>-40 and z<-11
 
+func forest_area(x: float,z: float) -> bool:
+	return x>=-43 and x<=-17 and z>=-10 and z<=36
+
 func journey_road(x: float,z: float) -> bool:
 	var p:=Vector2(x,z)
+	if absf(x+32)<1.4 and z>=-18 and z<33:return true
+	if absf(z-12)<1.4 and x>=-32 and x<=0:return true
 	return p.distance_to(Geometry2D.get_closest_point_to_segment(p,Vector2(-1,-8),Vector2(-23,-23)))<1.65
 
 func terrain() -> void:
@@ -111,7 +118,7 @@ func vegetation() -> void:
 	for i in tree_positions.size():
 		var p: Vector2 = tree_positions[i]
 		# Preserve old resource IDs: skip rendering after the unchanged position list is built.
-		if village_area(p.x,p.y) or journey_road(p.x,p.y): continue
+		if village_area(p.x,p.y) or journey_road(p.x,p.y) or forest_area(p.x,p.y): continue
 		var y := height_at(int(p.x),int(p.y))
 		var id := "tree_%d" % i
 		if id in progress.harvested: continue
@@ -150,7 +157,7 @@ func vegetation() -> void:
 	for i in range(1900):
 		var x := rng.randf_range(-44,44)
 		var z := rng.randf_range(-44,43)
-		if village_area(x,z) or journey_road(x,z): continue
+		if village_area(x,z) or journey_road(x,z) or forest_area(x,z): continue
 		if absf(x-river_x(z))<5.5 or (x>-8 and x<3 and z>-4 and z<14): continue
 		var y := float(height_at(int(floor(x)),int(floor(z))))
 		var transform := Transform3D(Basis.IDENTITY,Vector3(x,y+0.17,z))
@@ -221,12 +228,59 @@ func create_temperate_landmark() -> void:
 		art.box(root, Vector3(-1.4, y, 0), Vector3(0.22, 0.22, 3.1), art.materials.plank)
 		art.box(root, Vector3(1.4, y, 0), Vector3(0.22, 0.22, 3.1), art.materials.plank)
 	art.box(root, Vector3(0, 3.62, 0), Vector3(3.2, 0.22, 3.2), art.materials.roof)
-	for i in range(4):
-		art.box(root, Vector3(-1.05 + i * 0.7, 0.7 + i * 0.42, 0), Vector3(0.58, 0.12, 0.7), art.materials.plank, true)
+	# Ground-level wayfinding shelter: the previous isolated steps led nowhere.
 	art.torch(root, Vector3(0, 3.75, -1.12))
 	art.label(self, "森林瞭望台\n路线与地标", Vector3(-32, 6.0, -4), Color("e4ead2"))
-	art.chest(self, Vector3(-32, 2.5, -0.55), "lookout")
-	art.label(self, "瞭望台补给\nE  查看", Vector3(-32, 4.0, -0.55), Color("f3d279"))
+	art.chest(self, Vector3(-30.2, 2, -0.55), "lookout")
+	art.label(self, "瞭望台补给\nE  查看", Vector3(-30.2, 3.8, -0.55), Color("f3d279")).pixel_size=0.004
+
+func create_forest_route() -> void:
+	var white := art.color_mat(Color("dddcd1"))
+	var bark := art.color_mat(Color("41413d"))
+	var dark_wood := art.color_mat(Color("473624"))
+	var dark_leaf := art.materials.leaf.duplicate() as StandardMaterial3D
+	dark_leaf.albedo_color=Color("798b65")
+	for region in range(3):
+		var z := 4+region*12
+		var id: String=["flower","birch","dark"][region]
+		var title: String=["繁花森林","白桦林","黑森林"][region]
+		var sign := art.box(self,Vector3(-30,3.2,z),Vector3(1.5,0.9,0.15),art.materials.plank,true)
+		art.mark(sign,"forest",id)
+		art.box(self,Vector3(-30,2.5,z),Vector3(0.12,1,0.12),art.materials.log)
+		var label := art.label(self,title+"\nE  观察记录",Vector3(-30,4.1,z))
+		label.pixel_size=0.004
+		for i in range(4 if region==0 else 10):
+			var x := -40.0+(i%2)*18
+			var tz := float(z-4+(i/2)*2)
+			var height := 5.0+(i%3)
+			var tree_id := "forest_"+id+"_"+str(i)
+			if tree_id in progress.harvested:continue
+			var tree := Node3D.new()
+			add_child(tree)
+			tree.position=Vector3(x,2,tz)
+			var trunk := art.box(tree,Vector3(0,height/2,0),Vector3(0.9,height,0.9),white if region==1 else (dark_wood if region==2 else art.materials.log),true)
+			trunk.get_child(0).set_meta("resource_id",tree_id)
+			trunk.get_child(0).set_meta("kind","log")
+			collectables[tree_id]=tree
+			if region==1:
+				for j in range(int(height)):
+					art.box(tree,Vector3(0.12*(j%2),j+0.4,0),Vector3(0.93,0.12,0.93),bark)
+			art.box(tree,Vector3(0,height,0),Vector3(6 if region==2 else 4,2.4,5),dark_leaf if region==2 else art.materials.leaf)
+		if region==0:
+			for i in range(72):
+				var p := Vector3(-28+(i%9)*0.7,2.3,1+(i/9)*0.7)
+				art.box(self,p,Vector3(0.05,0.6,0.05),art.materials.leaf)
+				art.box(self,p+Vector3(0,0.3,0),Vector3(0.3,0.12,0.3),art.color_mat([Color("e86662"),Color("e2b4de"),Color("ffd264")][i%3]))
+		if region==2:
+			art.box(self,Vector3(-26,4,29),Vector3(0.9,4,0.9),white,true)
+			art.box(self,Vector3(-26,6,29),Vector3(4.5,0.9,4.5),art.color_mat(Color("ad3530")))
+			for i in range(9):
+				art.box(self,Vector3(-27.5+(i%3)*1.5,6.46,27.5+(i/3)*1.5),Vector3(0.35,0.025,0.35),white)
+			for i in range(4):
+				for side in [-1,1]:
+					art.box(self,Vector3(-27.5+i,6,29+side*2.26),Vector3(0.22,0.22,0.025),white)
+					art.box(self,Vector3(-26+side*2.26,6,27.5+i),Vector3(0.025,0.22,0.22),white)
+	art.label(self,"森林 ↓\n营地 →",Vector3(-32,4.3,12)).pixel_size=0.004
 
 func restore() -> void:
 	for index in progress.built:
