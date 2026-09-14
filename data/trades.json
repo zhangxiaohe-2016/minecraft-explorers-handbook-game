@@ -1,0 +1,5 @@
+{
+  "wheat": {"profession":"farmer","cost":{"wheat":6},"output":{"emerald":1},"source_page":26,"teaching_price":true},
+  "bread": {"profession":"farmer","cost":{"emerald":1},"output":{"bread":3},"source_page":26,"teaching_price":true},
+  "map": {"profession":"cartographer","cost":{"emerald":1},"output":{"map":1},"source_page":21,"teaching_price":true}
+}

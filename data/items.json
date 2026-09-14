@@ -1,0 +1,82 @@
+{
+  "log": {
+    "name": "原木",
+    "color": "795634"
+  },
+  "plank": {
+    "name": "木板",
+    "color": "c79a56"
+  },
+  "stick": {
+    "name": "木棍",
+    "color": "a87944"
+  },
+  "stone": {
+    "name": "圆石",
+    "color": "949b99"
+  },
+  "coal": {
+    "name": "煤炭",
+    "color": "353e43"
+  },
+  "bench": {
+    "name": "工作台",
+    "color": "bf854b"
+  },
+  "wood_pickaxe": {
+    "name": "木镐",
+    "color": "b38b4a"
+  },
+  "stone_axe": {
+    "name": "石斧",
+    "color": "a7afad"
+  },
+  "torch": {
+    "name": "火把",
+    "color": "ffc56c"
+  },
+  "furnace": {
+    "name": "熔炉",
+    "color": "7f8b8e"
+  },
+  "door": {
+    "name": "木门",
+    "color": "c69a55"
+  },
+  "wool": {
+    "name": "白色羊毛",
+    "color": "e8e4d9"
+  },
+  "bed": {
+    "name": "白色床",
+    "color": "f1eee4"
+  },
+  "raw_beef": {
+    "name": "生牛肉",
+    "color": "b64a48"
+  },
+  "cooked_beef": {
+    "name": "熟牛肉",
+    "color": "885a3e"
+  },
+  "charcoal": {
+    "name": "木炭",
+    "color": "383d40"
+  },
+  "wheat": {
+    "name": "小麦",
+    "color": "dbc05b"
+  },
+  "bread": {
+    "name": "面包",
+    "color": "bc8746"
+  },
+  "emerald": {
+    "name": "绿宝石",
+    "color": "48b876"
+  },
+  "map": {
+    "name": "定位地图",
+    "color": "e4d5ad"
+  }
+}

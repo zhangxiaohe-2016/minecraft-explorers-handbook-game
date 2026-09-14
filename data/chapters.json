@@ -1,0 +1,114 @@
+[
+  {
+    "id": "camp",
+    "number": "01",
+    "name": "林地营地",
+    "subtitle": "你的第一个夜晚",
+    "source": "Your Journey Begins · Home Sweet Home / Food and Supplies / Choose Your Equipment",
+    "status": "playable",
+    "systems": [
+      "movement",
+      "inventory",
+      "crafting",
+      "gathering",
+      "shelter",
+      "save"
+    ]
+  },
+  {
+    "id": "temperate",
+    "number": "02",
+    "name": "温带远行",
+    "subtitle": "当前可玩：平原村庄、交易与地图；其余温带场景待开发",
+    "source": "Temperate Landscapes",
+    "status": "partial",
+    "systems": [
+      "map",
+      "npc",
+      "trade",
+      "temple_puzzles"
+    ]
+  },
+  {
+    "id": "hot",
+    "number": "03",
+    "name": "沙海遗迹",
+    "subtitle": "沙漠金字塔、稀树草原与恶地",
+    "source": "Hot Landscapes",
+    "status": "planned",
+    "systems": [
+      "traps",
+      "loot",
+      "supplies"
+    ]
+  },
+  {
+    "id": "cold",
+    "number": "04",
+    "name": "雪线之上",
+    "subtitle": "针叶林、前哨站、雪屋、冰刺与山峰",
+    "source": "Cold Landscapes",
+    "status": "planned",
+    "systems": [
+      "powder_snow",
+      "armour",
+      "climbing"
+    ]
+  },
+  {
+    "id": "water",
+    "number": "05",
+    "name": "深蓝航迹",
+    "subtitle": "河流、蘑菇岛、沉船、海底废墟与神殿",
+    "source": "Aquatic Landscapes",
+    "status": "planned",
+    "systems": [
+      "boat",
+      "swimming",
+      "oxygen",
+      "underwater_combat"
+    ]
+  },
+  {
+    "id": "underground",
+    "number": "06",
+    "name": "大地之下",
+    "subtitle": "洞穴、废弃矿井、要塞与远古城市",
+    "source": "Underground Landscapes",
+    "status": "planned",
+    "systems": [
+      "ore_tiers",
+      "darkness",
+      "stealth",
+      "stronghold"
+    ]
+  },
+  {
+    "id": "nether",
+    "number": "07",
+    "name": "熔火远征",
+    "subtitle": "下界荒地、森林、灵魂沙谷、玄武岩三角洲与堡垒",
+    "source": "The Nether",
+    "status": "planned",
+    "systems": [
+      "portals",
+      "lava",
+      "resistance",
+      "bastion"
+    ]
+  },
+  {
+    "id": "end",
+    "number": "08",
+    "name": "终末群岛",
+    "subtitle": "抵达末地，探索末地城",
+    "source": "The End",
+    "status": "planned",
+    "systems": [
+      "end_portal",
+      "boss",
+      "end_city",
+      "flight"
+    ]
+  }
+]

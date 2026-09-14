@@ -1,0 +1,8 @@
+.godot/
+.DS_Store
+*.blend1
+assets/reference/
+builds/
+artifacts/
+
+backups/

@@ -1,0 +1,136 @@
+[
+  {
+    "id": "plank",
+    "name": "原木 → 木板 ×4",
+    "cost": {
+      "log": 1
+    },
+    "output": {
+      "plank": 4
+    },
+    "station": false,
+    "source": "Home Sweet Home",
+    "hint": "原木可以拆成木板，这是制作的第一步。"
+  },
+  {
+    "id": "stick",
+    "name": "木棍 ×4",
+    "cost": {
+      "plank": 2
+    },
+    "output": {
+      "stick": 4
+    },
+    "station": false,
+    "source": "Home Sweet Home",
+    "hint": "两块木板可以制作四根木棍。"
+  },
+  {
+    "id": "bench",
+    "name": "工作台",
+    "cost": {
+      "plank": 4
+    },
+    "output": {
+      "bench": 1
+    },
+    "station": false,
+    "source": "Home Sweet Home",
+    "hint": "四块木板制作工作台；在营地标记处按 E 放置。"
+  },
+  {
+    "id": "wood_pickaxe",
+    "name": "木镐",
+    "cost": {
+      "plank": 3,
+      "stick": 2
+    },
+    "output": {
+      "wood_pickaxe": 1
+    },
+    "station": true,
+    "source": "Home Sweet Home / Choose Your Equipment",
+    "hint": "三块木板和两根木棍。靠近工作台制作。"
+  },
+  {
+    "id": "stone_axe",
+    "name": "石斧",
+    "cost": {
+      "stone": 3,
+      "stick": 2
+    },
+    "output": {
+      "stone_axe": 1
+    },
+    "station": true,
+    "source": "Choose Your Equipment",
+    "hint": "更快地采集木头；需要三块圆石和两根木棍。"
+  },
+  {
+    "id": "torch",
+    "name": "火把 ×4",
+    "cost": {
+      "coal": 1,
+      "stick": 1
+    },
+    "output": {
+      "torch": 4
+    },
+    "station": false,
+    "source": "Food and Supplies",
+    "hint": "一块煤和一根木棍，照亮你的第一间小屋。"
+  },
+  {
+    "id": "furnace",
+    "name": "熔炉",
+    "cost": {
+      "stone": 8
+    },
+    "output": {
+      "furnace": 1
+    },
+    "station": true,
+    "source": "Essential Items / Food and Supplies",
+    "hint": "八块圆石。第一关可制作并放置，冶炼在后续阶段开放。"
+  },
+  {
+    "id": "door",
+    "name": "木门 ×3",
+    "cost": {
+      "plank": 6
+    },
+    "output": {
+      "door": 3
+    },
+    "station": true,
+    "source": "Home Sweet Home",
+    "hint": "六块木板制作三扇门；小屋用掉一扇。"
+  },
+  {
+    "id": "bed",
+    "name": "白色床",
+    "cost": {
+      "wool": 3,
+      "plank": 3
+    },
+    "output": {
+      "bed": 1
+    },
+    "station": true,
+    "source": "Essential Items p.9",
+    "hint": "三块白色羊毛和三块木板；做好后走进营地小屋，按 E 放置。"
+  },
+  {
+    "id": "bread",
+    "name": "面包",
+    "cost": {
+      "wheat": 3
+    },
+    "output": {
+      "bread": 1
+    },
+    "station": true,
+    "source": "Food and Supplies / village farms",
+    "hint": "三份小麦制作面包。带上食物再远行。"
+  }
+]
