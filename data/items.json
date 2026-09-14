@@ -78,5 +78,9 @@
   "map": {
     "name": "定位地图",
     "color": "e4d5ad"
+  },
+  "compass": {
+    "name": "指南针",
+    "color": "d5c28b"
   }
 }

@@ -39,7 +39,8 @@ func _ready() -> void:
 	game.hud.text(game.hud.root,"M  地图     F  食物",Vector2(1030,860),Vector2(340,22),13,ExplorerHUD.CREAM)
 
 func stage() -> int:
-	if state.has_flag("journey_complete"):return 6
+	if state.has_flag("journey_complete") and state.has_flag("temperate_landmark"):return 8
+	if state.has_flag("journey_complete"):return 7
 	if not state.has_flag("supplies"):return 0
 	if not state.has_flag("bed"):return 1
 	if not state.has_flag("cooked_cooked_beef"):return 2
@@ -87,8 +88,8 @@ func _process(delta: float) -> void:
 		hunger_label.text="饥饿值 %d / 20    F  吃东西%s"%[hunger," · 太饿时无法快跑" if hunger<=6 else ""]
 
 func update_quest() -> void:
-	var titles:=["为第一次远行做准备","在小屋安放一张床","让熔炉真正点起火","沿小路寻找村庄","与村民交换一张地图","带着地图回到营地","第一趟远行，完成"]
-	var bodies:=["门外新增了一个教学补给箱。\n对准箱子按 E，取出羊毛、\n木板、食材和少量燃料。", "工作台旁按 Tab：\n3 羊毛 + 3 木板 → 白色床。\n走进小屋，按 E 放置。\n对准床按 E 可休息并设定重生点。", "对准熔炉按 E 打开。\n选择烹饪牛肉，等 6 秒完成。\n成品自动收进背包，按 F 可食用。\n煤、木炭或木板都能作燃料。", "从石丘旁的小路向西北走。\n沿「村庄 ↖」路牌前进。\n尖顶屋、水井和农田就在前方。", "对准成熟麦穗按 E 收获。\n找农夫：6 小麦换 1 绿宝石。\n找制图师：1 绿宝石换定位地图。\n价格是本关的教学设定。", "按 M 打开地图，红箭头是你。\n金色方块代表营地。\n走回小屋附近，完成第一次远行。\n饥饿时按 F，吃些熟食或面包。", "补给、休息、烹饪、交易和地图\n已经连接成一条完整探索路线。\n你可以继续收获、交易与制图。\n森林与丛林仍待后续开发。"]
+	var titles:=["为第一次远行做准备","在小屋安放一张床","让熔炉真正点起火","沿小路寻找村庄","与村民交换一张地图","带着地图回到营地","第一趟远行，完成","去森林瞭望台认路","温带路线已记录"]
+	var bodies:=["门外新增了一个教学补给箱。\n对准箱子按 E，取出羊毛、\n木板、食材和少量燃料。", "工作台旁按 Tab：\n3 羊毛 + 3 木板 → 白色床。\n走进小屋，按 E 放置。\n对准床按 E 可休息并设定重生点。", "对准熔炉按 E 打开。\n选择烹饪牛肉，等 6 秒完成。\n成品自动收进背包，按 F 可食用。\n煤、木炭或木板都能作燃料。", "从石丘旁的小路向西北走。\n沿「村庄 ↖」路牌前进。\n尖顶屋、水井和农田就在前方。", "对准成熟麦穗按 E 收获。\n找农夫：6 小麦换 1 绿宝石。\n找制图师：1 绿宝石换定位地图。\n价格是本关的教学设定。", "按 M 打开地图，红箭头是你。\n金色方块代表营地。\n走回小屋附近，完成第一次远行。\n饥饿时按 F，吃些熟食或面包。", "补给、休息、烹饪、交易和地图\n已经连接成一条完整探索路线。\n你可以继续收获、交易与制图。", "沿村庄西侧的小路向南走，寻找森林瞭望台。\n对准瞭望台补给箱按 E，领取指南针。\n这是下一段温带路线的地标。", "你已经记录营地、村庄和森林瞭望台。\n指南针用于确认方向。\n下一步将进入更深的森林与遗迹。"]
 	var index:=stage()
 	game.hud.quest_number.text="平原远行  /  %02d"%(index+1)
 	game.hud.quest_title.text=titles[index]
@@ -117,7 +118,10 @@ func hint() -> String:
 	if not state.has_flag("complete"):
 		return "远行内容\n完成第一夜后开放" if kind!="" else ""
 	match kind:
-		"chest":return "远行补给箱\nE  "+("已领取补给" if state.has_flag("supplies") else "领取一次性教学补给")
+		"chest":
+			var chest_id:=str(game.target.collider.get_meta("journey_id",""))
+			if chest_id=="lookout": return "瞭望台补给\nE  "+("已领取指南针" if state.has_flag("temperate_landmark") else "领取指南针")
+			return "远行补给箱\nE  "+("已领取补给" if state.has_flag("supplies") else "领取一次性教学补给")
 		"bed":return "白色床\nE  休息，并设定重生点"
 		"furnace":return "熔炉\nE  烹饪食物 / 烧制木炭"
 		"villager":return "村民\nE  交谈与交易"
@@ -136,6 +140,14 @@ func interact() -> bool:
 		if kind!="":game.hud.toast("先完成营地的第一夜，再开始远行。")
 		return kind!=""
 	if kind=="chest":
+		if str(game.target.collider.get_meta("journey_id",""))=="lookout":
+			if state.has_flag("temperate_landmark"): game.hud.toast("瞭望台补给已经领过了。")
+			else:
+				state.add("compass",1)
+				state.flags.temperate_landmark=true
+				state.save_game()
+				game.hud.toast("获得指南针。下一段温带路线已经记录。")
+			return true
 		if state.has_flag("supplies"):game.hud.toast("补给已经领过了。箱子不会重复发放物品。")
 		else:
 			for id in {"wool":3,"plank":8,"raw_beef":2,"coal":2}:

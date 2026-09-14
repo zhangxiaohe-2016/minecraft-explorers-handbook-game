@@ -27,6 +27,7 @@ func setup(state: ExpeditionProgress, library: ExplorerArt) -> void:
 	terrain()
 	vegetation()
 	create_camp()
+	create_temperate_landmark()
 	restore()
 
 func river_x(z: float) -> float:
@@ -206,6 +207,26 @@ func create_camp() -> void:
 	art.torch(self,Vector3(-9.5,3.4,7.5))
 	art.torch(self,Vector3(2.5,3.4,7.5))
 	art.box(self,Vector3(0,2.05,13),Vector3(3.6,0.1,2.0),art.materials.plank)
+
+func create_temperate_landmark() -> void:
+	var root := Node3D.new()
+	add_child(root)
+	root.position = Vector3(-32, 2, -4)
+	for x in [-1.4, 1.4]:
+		for z in [-1.4, 1.4]:
+			art.box(root, Vector3(x, 1.8, z), Vector3(0.28, 3.6, 0.28), art.materials.log, true)
+	for y in [0.25, 3.45]:
+		art.box(root, Vector3(0, y, -1.4), Vector3(3.1, 0.22, 0.22), art.materials.plank)
+		art.box(root, Vector3(0, y, 1.4), Vector3(3.1, 0.22, 0.22), art.materials.plank)
+		art.box(root, Vector3(-1.4, y, 0), Vector3(0.22, 0.22, 3.1), art.materials.plank)
+		art.box(root, Vector3(1.4, y, 0), Vector3(0.22, 0.22, 3.1), art.materials.plank)
+	art.box(root, Vector3(0, 3.62, 0), Vector3(3.2, 0.22, 3.2), art.materials.roof)
+	for i in range(4):
+		art.box(root, Vector3(-1.05 + i * 0.7, 0.7 + i * 0.42, 0), Vector3(0.58, 0.12, 0.7), art.materials.plank, true)
+	art.torch(root, Vector3(0, 3.75, -1.12))
+	art.label(self, "森林瞭望台\n路线与地标", Vector3(-32, 6.0, -4), Color("e4ead2"))
+	art.chest(self, Vector3(-32, 2.5, -0.55), "lookout")
+	art.label(self, "瞭望台补给\nE  查看", Vector3(-32, 4.0, -0.55), Color("f3d279"))
 
 func restore() -> void:
 	for index in progress.built:
