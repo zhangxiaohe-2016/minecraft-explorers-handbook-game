@@ -174,6 +174,8 @@ func show_modal(kind: String) -> void:
 		var intro := "你的第一夜已经完成，房屋和背包都保留了。\n这一程：领取补给、制作床、烹饪食物，沿西北小路发现村庄。\n\n与农夫、制图师交易，带着地图平安返回营地。" if state.has_flag("complete") else "跟随手册，采集木头、制作工具，亲手搭起第一间小屋。\n不需要玩过游戏。左侧目标会一步步带你完成。\n\n现在是安全教学时间：只有你准备好，夜晚才会到来。"
 		if state.has_flag("journey_complete"):
 			intro="村庄往返已完成，接下来观察书中的三种森林。\n沿村庄西侧小路向南，在瞭望台领取指南针。\n\n右上红针指向世界出生点，按 C 查看说明。\n沿路对准森林观察牌按 E，记录后用指南针返回。"
+		if state.has_flag("forest_complete"):
+			intro="森林考察已完成，这次进入书中的林地府邸。\n准备石斧、熟食和一块原木，沿营地南侧路牌前进。\n\n正门旁按 E 阅读说明，再探索三层房间。\n抬斧时后退，远离红色施法区；F 食物可恢复生命。"
 		text(modal,intro,Vector2(49,254),Vector2(920,160),20,CREAM)
 		text(modal,"鼠标  看四周     W A S D  行走     空格  跳跃\n左键按住  采集     E  互动     Tab  制作     Esc  暂停",Vector2(49,461),Vector2(900,70),17,MUTED)
 		button(modal,"继续这段旅程" if state.has_flag("started") else "开始我的第一天  →",Rect2(49,563,316,60),"start",true)

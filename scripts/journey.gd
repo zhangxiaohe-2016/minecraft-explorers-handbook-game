@@ -122,6 +122,7 @@ func update_quest() -> void:
 		if state.has_flag("forest_complete"):
 			game.hud.quest_title.text="森林考察完成"
 			game.hud.quest_body.text="三种森林已记录，返程练习已完成。\n可再次访问观察牌温习。\n下一节：林地府邸（第 30–31 页）。\n府邸与战斗尚未开放。"
+			if game.mansion!=null:game.mansion.update_quest()
 
 func reveal_map() -> void:
 	var x:=int(floor((game.player.position.x+48)/4))
@@ -188,6 +189,7 @@ func interact() -> bool:
 			open_panel("forest_"+str(game.target.collider.get_meta("journey_id")))
 		return true
 	if kind=="bed":
+		state.journey.health=10
 		var id: String=game.target.collider.get_meta("journey_id")
 		state.journey.spawn=[-5,2.1,1.8] if id=="camp" else [-32,2.1,-29]
 		state.flags["rested_"+id]=true
@@ -273,7 +275,7 @@ func open_panel(kind: String) -> void:
 			ui.button(panel,"原木 → 木炭",Rect2(510,449,480,58),"journey:cook:charcoal")
 			ui.text(panel,"成品自动收进背包。离开面板后仍会继续；Esc 暂停时停止。\n优先使用煤、其次木炭、最后木板。煤或木炭可加热 8 次，本关木板可加热 1 次。",Vector2(40,552),Vector2(960,78),16,ExplorerHUD.MUTED)
 		"food":
-			ui.text(panel,"当前饥饿值：%.1f / 20。熟食比生食更适合长途探索。"%float(state.journey.hunger),Vector2(35,95),Vector2(960,42),20,ExplorerHUD.MINT)
+			ui.text(panel,"饥饿：%.1f / 20    生命：%d / 10    食物也会恢复 2 点生命。"%[float(state.journey.hunger),int(state.journey.health)],Vector2(35,95),Vector2(960,42),20,ExplorerHUD.MINT)
 			var ids:=["cooked_beef","bread","raw_beef"]
 			for i in range(3):
 				var id: String=ids[i]
@@ -287,7 +289,7 @@ func open_panel(kind: String) -> void:
 				ui.text(panel,"%s ×%d"%[state.items[id].name,state.count(id)],Vector2(165,y),Vector2(530,38),25)
 				ui.text(panel,"恢复 %d 点饥饿值"%[8,5,3][i],Vector2(166,y+44),Vector2(530,29),17,ExplorerHUD.MUTED)
 				var b:=ui.button(panel,"吃一份",Rect2(714,y+7,270,57),"journey:eat:"+id,true)
-				b.disabled=state.count(id)==0 or float(state.journey.hunger)>=20
+				b.disabled=state.count(id)==0 or (float(state.journey.hunger)>=20 and int(state.journey.health)>=10)
 			ui.text(panel,"饥饿值低于或等于 6 时不能快跑。当前教学模式不会因饥饿死亡。",Vector2(40,614),Vector2(960,38),16,ExplorerHUD.MUTED)
 		"farmer":
 			ui.text(panel,"「出远门要带些吃的。农田里成熟的小麦，可以拿来和我交换。」",Vector2(36,106),Vector2(970,62),22,ExplorerHUD.CREAM)

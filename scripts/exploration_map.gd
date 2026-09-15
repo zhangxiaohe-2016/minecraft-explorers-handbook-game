@@ -21,6 +21,7 @@ func _draw() -> void:
 				color=Color("78935b") if world.height_at(wx,wz)<6 else Color("66765b")
 				if absf(wx-world.river_x(wz))<5:color=Color("488995")
 				if world.village_area(wx,wz):color=Color("9baf69")
+				if world.mansion_area(wx,wz):color=Color("563f32")
 				if world.forest_area(wx,wz):color=Color("4c6545") if wz>22 else (Color("94ae71") if wz>10 else Color("adba72"))
 				if world.journey_road(wx,wz):color=Color("d5bd85")
 				for house in [Vector2(-34,-32),Vector2(-22,-36),Vector2(-36,-20)]:

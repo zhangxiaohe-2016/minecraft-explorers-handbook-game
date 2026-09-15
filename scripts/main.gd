@@ -20,6 +20,7 @@ var next_step := -1
 var ambience: AudioStreamPlayer
 var smoke_mode := false
 var journey: VillageJourney
+var mansion: MansionExpedition
 
 func _ready() -> void:
 	smoke_mode = "--smoke" in OS.get_cmdline_user_args()
@@ -54,6 +55,9 @@ func _ready() -> void:
 	journey = VillageJourney.new()
 	journey.game = self
 	add_child(journey)
+	mansion=MansionExpedition.new()
+	mansion.game=self
+	world.add_child(mansion)
 	set_modal("welcome")
 	get_tree().auto_accept_quit = false
 	if smoke_mode:
@@ -164,6 +168,7 @@ func _process(delta: float) -> void:
 		return_camp()
 		hud.toast("水域探索将在后续章节开放，先在岸上练习吧。")
 	target = player.ray()
+	mansion.update_combat(delta)
 	update_time += delta
 	if update_time > 0.12:
 		update_time = 0
@@ -204,6 +209,9 @@ func near_workbench() -> bool:
 
 func update_hint() -> void:
 	var message := ""
+	if mansion!=null and mansion.hint()!="":
+		hud.hint.text=mansion.hint()
+		return
 	if not target.is_empty():
 		var body: Object = target.collider
 		if body.has_meta("resource_id"):
@@ -267,6 +275,7 @@ func update_gather(delta: float) -> void:
 		hud.gather_bar.hide()
 
 func interact() -> void:
+	if mansion!=null and mansion.interact():return
 	if journey != null and journey.interact(): return
 	# Finish the teaching installation before the door starts handling normal use.
 	if near_cabin() and progress.has_flag("door") and not progress.has_flag("torch") and progress.count("torch") > 0:
@@ -355,6 +364,9 @@ func close_modal() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func on_action(id: String) -> void:
+	if id=="mansion:start":
+		mansion.start()
+		return
 	if journey != null and journey.on_action(id): return
 	if id.begins_with("craft:"):
 		var recipe := id.trim_prefix("craft:")

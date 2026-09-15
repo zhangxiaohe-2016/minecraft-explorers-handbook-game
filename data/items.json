@@ -82,5 +82,9 @@
   "compass": {
     "name": "指南针",
     "color": "d5c28b"
+  },
+  "mansion_notes": {
+    "name": "府邸考察手记",
+    "color": "d5bc88"
   }
 }

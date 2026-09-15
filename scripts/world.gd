@@ -38,6 +38,7 @@ func height_at(x: int, z: int) -> int:
 	var river_distance := absf(float(x) - river_x(z))
 	if river_distance < 3.0: return 0
 	if river_distance < 4.5: return 1
+	if mansion_area(x,z):return 2
 	if forest_area(x,z): return 2
 	if village_area(x,z) or journey_road(x,z): return 2
 	if x > -13 and x < 12 and z > -12 and z < 19: return 2
@@ -50,8 +51,12 @@ func village_area(x: float,z: float) -> bool:
 func forest_area(x: float,z: float) -> bool:
 	return x>=-43 and x<=-17 and z>=-10 and z<=36
 
+func mansion_area(x: float,z: float) -> bool:
+	return x>=-16 and x<=10 and z>=19 and z<=44
+
 func journey_road(x: float,z: float) -> bool:
 	var p:=Vector2(x,z)
+	if absf(x+3)<1.5 and z>=12 and z<=22:return true
 	if absf(x+32)<1.4 and z>=-18 and z<33:return true
 	if absf(z-12)<1.4 and x>=-32 and x<=0:return true
 	return p.distance_to(Geometry2D.get_closest_point_to_segment(p,Vector2(-1,-8),Vector2(-23,-23)))<1.65
@@ -118,7 +123,7 @@ func vegetation() -> void:
 	for i in tree_positions.size():
 		var p: Vector2 = tree_positions[i]
 		# Preserve old resource IDs: skip rendering after the unchanged position list is built.
-		if village_area(p.x,p.y) or journey_road(p.x,p.y) or forest_area(p.x,p.y): continue
+		if village_area(p.x,p.y) or journey_road(p.x,p.y) or forest_area(p.x,p.y) or mansion_area(p.x,p.y): continue
 		var y := height_at(int(p.x),int(p.y))
 		var id := "tree_%d" % i
 		if id in progress.harvested: continue
@@ -157,7 +162,7 @@ func vegetation() -> void:
 	for i in range(1900):
 		var x := rng.randf_range(-44,44)
 		var z := rng.randf_range(-44,43)
-		if village_area(x,z) or journey_road(x,z) or forest_area(x,z): continue
+		if village_area(x,z) or journey_road(x,z) or forest_area(x,z) or mansion_area(x,z): continue
 		if absf(x-river_x(z))<5.5 or (x>-8 and x<3 and z>-4 and z<14): continue
 		var y := float(height_at(int(floor(x)),int(floor(z))))
 		var transform := Transform3D(Basis.IDENTITY,Vector3(x,y+0.17,z))

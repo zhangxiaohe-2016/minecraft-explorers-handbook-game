@@ -13,7 +13,7 @@ var harvested: Array = []
 var built: Array = []
 var position: Array = []
 var look: Array = []
-var journey: Dictionary = {"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[]}
+var journey: Dictionary = {"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10}
 var save_enabled := true
 var notice := ""
 
@@ -176,12 +176,13 @@ func tick_smelting(delta: float) -> bool:
 func eat(id: String) -> String:
 	var points: Dictionary={"raw_beef":3,"cooked_beef":8,"bread":5}
 	if not points.has(id) or count(id)<1: return "背包里没有这份食物。"
-	if float(journey.hunger)>=20: return "现在很饱，留到路上再吃吧。"
+	if float(journey.hunger)>=20 and int(journey.health)>=10: return "现在很饱，留到路上再吃吧。"
 	pay({id:1})
 	journey.hunger=minf(20,float(journey.hunger)+int(points[id]))
+	journey.health=mini(10,int(journey.health)+2)
 	flags.ate=true
 	save_game()
-	return "吃下%s，饥饿值恢复到 %d / 20。" % [items[id].name,int(journey.hunger)]
+	return "吃下%s，饥饿 %d / 20，生命 %d / 10。" % [items[id].name,int(journey.hunger),int(journey.health)]
 
 func trade(id: String) -> String:
 	var offers := trades
@@ -201,5 +202,5 @@ func reset() -> void:
 	built.clear()
 	position.clear()
 	look.clear()
-	journey={"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[]}
+	journey={"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10}
 	save_game()
