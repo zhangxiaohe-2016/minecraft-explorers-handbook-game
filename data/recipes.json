@@ -91,7 +91,7 @@
     },
     "station": true,
     "source": "Essential Items / Food and Supplies",
-    "hint": "八块圆石。第一关可制作并放置，冶炼在后续阶段开放。"
+    "hint": "八块圆石。在营地摆放后，可以烹饪牛肉与烧制木炭。"
   },
   {
     "id": "door",
@@ -132,5 +132,14 @@
     "station": true,
     "source": "Food and Supplies / village farms",
     "hint": "三份小麦制作面包。带上食物再远行。"
+  },
+  {
+    "id": "wood_sword",
+    "name": "木剑",
+    "cost": {"plank": 2, "stick": 1},
+    "output": {"wood_sword": 1},
+    "station": true,
+    "source": "Essential Items p.9 / Weapons p.16",
+    "hint": "两块木板加一根木棍。按 5 装备，近距离按住左键攻击。"
   }
 ]

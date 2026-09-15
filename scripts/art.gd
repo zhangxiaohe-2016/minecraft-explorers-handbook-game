@@ -76,6 +76,21 @@ func bench(parent: Node3D, pos: Vector3) -> Node3D:
 	box(root, Vector3(0, 1.005, 0), Vector3(1.005, 0.015, 1.005), materials.bench_top)
 	return root
 
+func wood_sword(parent: Node3D) -> Node3D:
+	var root:=Node3D.new()
+	root.name="WoodSword"
+	parent.add_child(root)
+	var edge:=color_mat(Color("654727"))
+	var blade:=color_mat(Color("b68b48"))
+	box(root,Vector3(0,0.1,0),Vector3(0.055,0.24,0.065),edge)
+	box(root,Vector3(0,-0.03,0),Vector3(0.09,0.06,0.08),edge)
+	box(root,Vector3(0,0.24,0),Vector3(0.29,0.065,0.08),edge)
+	for row in range(9):
+		var width:=0.14 if row<7 else (0.10 if row==7 else 0.055)
+		box(root,Vector3(0,0.3+row*0.065,0),Vector3(width,0.066,0.065),edge)
+		box(root,Vector3(-0.008,0.3+row*0.065,0.035),Vector3(width*0.65,0.066,0.008),blade)
+	return root
+
 func furnace(parent: Node3D, pos: Vector3) -> Node3D:
 	var root := Node3D.new()
 	parent.add_child(root)

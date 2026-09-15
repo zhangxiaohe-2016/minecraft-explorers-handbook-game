@@ -86,5 +86,9 @@
   "mansion_notes": {
     "name": "府邸考察手记",
     "color": "d5bc88"
+  },
+  "wood_sword": {
+    "name": "木剑",
+    "color": "a87d40"
   }
 }

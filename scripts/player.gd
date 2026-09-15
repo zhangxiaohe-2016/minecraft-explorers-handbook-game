@@ -59,6 +59,9 @@ func hold(id: String) -> void:
 	held_id = id
 	for child in hand.get_children():
 		child.queue_free()
+	if id=="wood_sword":
+		ExplorerArt.new().wood_sword(hand)
+		return
 	var path := "res://assets/models/" + id + ".glb"
 	if ResourceLoader.exists(path):
 		var model: Node3D = load(path).instantiate()

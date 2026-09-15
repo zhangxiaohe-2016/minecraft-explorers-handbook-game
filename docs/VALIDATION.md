@@ -62,3 +62,30 @@
 - 已检查 artifacts/mansion-exterior.png、mansion-statue.png、mansion-secret.png。修正首层地面与草地重叠、大面积墙面纹理拉伸，建筑改用固定世界尺度的三向纹理映射。
 - 原生测试在镜头定位期间屏蔽实际鼠标移动，避免窗口切换引起的鼠标归位影响镜头；交互仍通过真实注入 E 键和鼠标事件验证。
 - 本次不报告未经基准验证的平均帧率。功能与教学改编边界见 MANSION_PLAN.md。
+
+## 书籍补漏收尾：木剑 / 地图旗标 / 向日葵（2026-09-15）
+
+范围：印刷第 9、16、21、25 页的三项本地未提交改动，已专项验收并可提交。
+
+- 新建 `tests/test_book_review.gd`（证据代号 A）。headless 与原生 Metal 均为 **0 failures**。
+- **木剑**：无材料/无工作台不能制作；2 木板+1 木棍消耗正确；第 5 槽与键盘 5 装备；第一人称程序模型可见；真实左键命中卫道士；攻击间隔为教学短间隔；空手不造成伤害；石斧仍可用；府邸准入接受“仅木剑+食物”。
+- **地图旗标**：未探索格拒绝；已探索格可放/删；上限 12；第 13 个拒绝；读档保留；旧存档无 waypoints 字段时初始化为空数组。操作失败有 toast。
+- **向日葵**：12 栋；花面在 +X；元数据 `flower_direction=RIGHT`；真实 E 记录 `sunflower_observed`；交互后可继续行走。
+- 原生截图：`artifacts/book-wood-sword.png`、`book-map-flags.png`、`book-sunflowers.png`（已目视核对，不进入版本库）。
+- 同轮回归：test_progress、test_playthrough、test_village、test_forest、test_mansion、mansion --reloadcheck 均为 0 failures。
+- 存档：测试写 `/tmp/explorer-book-review.json` 等临时文件；未写玩家存档。
+- 教学差异：木剑攻击间隔、12 旗标上限、12 株定点向日葵为教学改编；无耐久、无完整群系生成。
+
+下一步建议（P1）：耐久与备用工具 → 原料/冶炼链 → 护甲槽与减伤。
+
+## 接班质量独立复核（2026-09-15）
+
+上节“仅木剑准入”及地图真实点击的证据不充分：fixture 仍有石斧，旗标测试调用内部函数。本轮新增 test_quality_review.gd，清空石斧后验证准入，并通过 GUI 事件验证地图增删和不同窗口尺寸；headless 与原生 Metal 均 0 failures。
+
+## 工作单 A 交付收尾（2026-09-15）
+
+- 统一四处府邸提示：路牌、准备目标、战斗目标、森林完成后欢迎语，均为“木剑或石斧”，战斗写 5/3。
+- 修正 test_book_review：断言前清空全部石斧；键盘 5 从空手槽开始；比较用石斧在准入断言后单独补回。
+- test_quality_review 作为独立 GUI/纯木剑证据保留。
+- 复跑：book_review、quality_review（headless+Metal）、progress、playthrough（仅 --integration 从零）、village/forest/mansion+reloadcheck（camp_v1 fixture）。
+- 状态：功能已验证；视觉仍为基础可辨认级别，非像素还原。版本/提交/Release 以本轮实际 git 与 Release 说明为准。

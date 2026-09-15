@@ -143,6 +143,7 @@ func hint() -> String:
 	if not state.has_flag("complete"):
 		return "远行内容\n完成第一夜后开放" if kind!="" else ""
 	match kind:
+		"sunflower":return "向日葵\nE  观察它朝向哪里"
 		"forest":return "森林观察牌\nE  辨认与记录"
 		"chest":
 			var chest_id:=str(game.target.collider.get_meta("journey_id",""))
@@ -181,6 +182,11 @@ func interact() -> bool:
 			state.flags.supplies=true
 			state.save_game()
 			game.hud.toast("收到：3 羊毛、8 木板、2 生牛肉、2 煤。先制作白色床。")
+		return true
+	if kind=="sunflower":
+		state.flags.sunflower_observed=true
+		state.save_game()
+		game.hud.toast("第 25 页：向日葵金色花面朝东。没有指南针时，也能借它辨方向。")
 		return true
 	if kind=="forest":
 		if not state.has_flag("journey_complete") or state.count("compass")==0:
@@ -310,10 +316,11 @@ func open_panel(kind: String) -> void:
 			map.world=game.world
 			map.state=state
 			map.player=game.player
+			map.game=game
 			panel.add_child(map)
 			ui.text(panel,"北 N ↑",Vector2(218,97),Vector2(240,35),20,ExplorerHUD.GOLD)
-			ui.text(panel,"图例\n\n红箭头  ·  你的位置与朝向\n金色方块  ·  林地营地\n白色圆点  ·  已发现的村庄\n浅褐色  ·  尚未探索\n蓝色  ·  河流",Vector2(585,155),Vector2(425,320),21)
-			ui.text(panel,"随身携带地图时，会自动记录\n附近地形。探索记录随存档保留。\n\n按 M 或 Esc 返回游戏。",Vector2(585,493),Vector2(425,143),17,ExplorerHUD.MUTED)
+			ui.text(panel,"图例\n\n红箭头  ·  你的位置与朝向\n粉色旗标  ·  你标记的兴趣点\n金色方块  ·  林地营地\n白色圆点  ·  已发现的村庄\n浅褐色  ·  尚未探索\n蓝色  ·  河流",Vector2(585,155),Vector2(425,320),21)
+			ui.text(panel,"左键点已探索格子：放置粉色旗标。\n再次点击删除，最多 12 个。\n旗标与探索记录随存档保留。\n\n按 M 或 Esc 返回游戏。",Vector2(585,470),Vector2(425,168),17,ExplorerHUD.MUTED)
 		"journey_complete":
 			ui.text(panel,"你带回来的，不只是一张地图。",Vector2(41,139),Vector2(950,69),35,ExplorerHUD.GOLD)
 			ui.text(panel,"从营地准备食物，到第一次发现村庄、收获作物、\n与村民交易，再沿着地图返回。\n\n你的营地、背包、农田状态和探索记录都已保存。\n接下来可以继续补给，或在这片平原自由走走。\n森林、丛林及更远的章节仍待后续开发。",Vector2(43,269),Vector2(950,237),23)

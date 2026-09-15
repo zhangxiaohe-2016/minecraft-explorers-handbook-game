@@ -65,10 +65,10 @@ func setup(progress: ExpeditionProgress) -> void:
 	var resource_panel := panel(root,Rect2(1005,783,407,77),Color(0.07,0.15,0.13,0.88))
 	text(resource_panel,"随身物资",Vector2(16,9),Vector2(350,20),12,MINT)
 	inventory_line = text(resource_panel,"",Vector2(16,36),Vector2(380,26),16,CREAM)
-	for i in range(4):
-		var slot := panel(root,Rect2(551+i*86,789,78,76),Color(0.07,0.15,0.13,0.9))
+	for i in range(5):
+		var slot := panel(root,Rect2(525+i*86,789,78,76),Color(0.07,0.15,0.13,0.9))
 		text(slot,str(i+1),Vector2(8,5),Vector2(20,18),11,MINT)
-		text(slot,["空手","木镐","石斧","火把"][i],Vector2(8,30),Vector2(63,25),16,CREAM).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		text(slot,["空手","木镐","石斧","火把","木剑"][i],Vector2(8,30),Vector2(63,25),16,CREAM).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		hotbar.append(slot)
 	text(root,"+",Vector2(706,432),Vector2(28,28),23,CREAM).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint = text(root,"",Vector2(420,654),Vector2(600,62),19,CREAM)
@@ -175,7 +175,7 @@ func show_modal(kind: String) -> void:
 		if state.has_flag("journey_complete"):
 			intro="村庄往返已完成，接下来观察书中的三种森林。\n沿村庄西侧小路向南，在瞭望台领取指南针。\n\n右上红针指向世界出生点，按 C 查看说明。\n沿路对准森林观察牌按 E，记录后用指南针返回。"
 		if state.has_flag("forest_complete"):
-			intro="森林考察已完成，这次进入书中的林地府邸。\n准备石斧、熟食和一块原木，沿营地南侧路牌前进。\n\n正门旁按 E 阅读说明，再探索三层房间。\n抬斧时后退，远离红色施法区；F 食物可恢复生命。"
+			intro="森林考察已完成，这次进入书中的林地府邸。\n准备木剑或石斧、熟食和一块原木，沿营地南侧路牌前进。\n\n正门旁按 E 阅读说明，再探索三层房间。\n5 木剑 / 3 石斧；抬手时后退，远离红色施法区。"
 		text(modal,intro,Vector2(49,254),Vector2(920,160),20,CREAM)
 		text(modal,"鼠标  看四周     W A S D  行走     空格  跳跃\n左键按住  采集     E  互动     Tab  制作     Esc  暂停",Vector2(49,461),Vector2(900,70),17,MUTED)
 		button(modal,"继续这段旅程" if state.has_flag("started") else "开始我的第一天  →",Rect2(49,563,316,60),"start",true)
@@ -228,7 +228,7 @@ func show_modal(kind: String) -> void:
 		text(modal,"书中依据：出发准备 / Home Sweet Home。首关采用安全教学与辅助蓝图建造。",Vector2(31,633),Vector2(975,30),14,MINT)
 	elif kind == "pause":
 		text(modal,"歇一会儿，再出发。",Vector2(49,65),Vector2(920,64),40)
-		text(modal,"游戏已暂停，进度已保存。\n\nW A S D 行走 / 鼠标转向 / 空格跳跃 / Shift 快走\n左键按住采集 / 右键按住建屋 / E 互动\n1—4 切换工具 / Tab 制作背包 / J 探索手记\n\n迷路或卡住可以回营地，不会丢失已收集的物品。",Vector2(50,167),Vector2(920,244),20)
+		text(modal,"游戏已暂停，进度已保存。\n\nW A S D 行走 / 鼠标转向 / 空格跳跃 / Shift 快走\n左键按住采集 / 右键按住建屋 / E 互动\n1—5 切换工具 / Tab 制作背包 / J 探索手记\n\n迷路或卡住可以回营地，不会丢失已收集的物品。",Vector2(50,167),Vector2(920,244),20)
 		button(modal,"继续游戏",Rect2(49,474,275,55),"close",true)
 		button(modal,"回到营地",Rect2(345,474,275,55),"return_camp")
 		button(modal,"探索手记",Rect2(641,474,275,55),"journal")

@@ -37,7 +37,7 @@ func _ready() -> void:
 			add_child(guard)
 			guard.setup(self,entry[0],entry[1],entry[2])
 	health_label=game.hud.text(game.hud.root,"",Vector2(1015,350),Vector2(380,70),18,ExplorerHUD.CREAM)
-	art.label(game.world,"林地府邸 ↓\n准备食物与石斧",Vector3(-3,4.1,16),Color("f3d279")).pixel_size=0.004
+	art.label(game.world,"林地府邸 ↓\n准备食物与木剑/石斧",Vector3(-3,4.1,16),Color("f3d279")).pixel_size=0.004
 	if state.has_flag("mansion_started"):gate.queue_free()
 	if state.has_flag("mansion_secret_open"):secret_door.queue_free()
 	if state.has_flag("mansion_cell_open"):cell_door.queue_free()
@@ -203,7 +203,7 @@ func target_id() -> String:
 
 func hint() -> String:
 	if not game.target.is_empty() and game.target.collider is MansionGuard:
-		return "守卫\n3 装备石斧 · 按住左键攻击 · 抬手时后退"
+		return "守卫\n5 木剑 / 3 石斧 · 按住左键攻击 · 抬手时后退"
 	var id:=target_id()
 	if id=="":return ""
 	return {"entrance":"林地府邸\nE  查看入内须知", "farm":"农场房补给\nE  收集小麦", "statue":"无害雕像\nE  查看与寻找线索", "storage":"储藏箱\nE  收集一次性物资", "cell":"牢房铁门\nE  打开", "allay":"悦灵\nE  递给它 1 原木", "secret":"异常的书架\nE  检查", "secret_chest":"秘密房间宝箱\nE  取出考察手记"}.get(id,"")
@@ -260,14 +260,14 @@ func open_briefing() -> void:
 	game.set_modal("mansion")
 	var ui: ExplorerHUD=game.hud
 	ui.text(ui.modal,"林地府邸 · 进入前读一读",Vector2(40,32),Vector2(950,50),30)
-	ui.text(ui.modal,"一楼：农场补给、巨鸡雕像的秘密线索。\n二楼：储藏房与牢房，小心巡逻的卫道士。\n三楼：书架后的秘密房间，留意唤魔者的施法。\n\n3 装备石斧，近距离对准守卫按住左键攻击。\n抬斧时后退；看见脚下红色提示时，立即走开。\nF 吃食物：恢复饥饿，并恢复 2 点生命。Esc 可暂停。\n生命耗尽会回到床边，物资保留。\n\n这次是简化战斗教学。悦灵跟随；恼鬼召唤尚未加入。",Vector2(40,115),Vector2(970,420),22)
+	ui.text(ui.modal,"一楼：农场补给、巨鸡雕像的秘密线索。\n二楼：储藏房与牢房，小心巡逻的卫道士。\n三楼：书架后的秘密房间，留意唤魔者的施法。\n\n5 木剑 / 3 石斧，近距离按住左键攻击。\n抬斧时后退；看见脚下红色提示时，立即走开。\nF 食物恢复饥饿和 2 点生命。Esc 暂停。\n生命耗尽回到床边，物资保留。\n\n简化战斗教学：木剑攻击间隔较短；无耐久。\n悦灵跟随；恼鬼召唤尚未加入。",Vector2(40,115),Vector2(970,420),22)
 	ui.button(ui.modal,"准备好了，进入府邸",Rect2(40,577,610,60),"mansion:start",true)
 	ui.button(ui.modal,"先回去准备",Rect2(680,577,310,60),"close")
 
 func start() -> void:
 	if not state.has_flag("forest_complete"):return
-	if state.count("stone_axe")==0 or state.count("bread")+state.count("cooked_beef")==0:
-		game.hud.toast("先准备石斧和至少一份面包或熟牛肉。")
+	if state.count("stone_axe")+state.count("wood_sword")==0 or state.count("bread")+state.count("cooked_beef")==0:
+		game.hud.toast("先准备木剑或石斧，以及至少一份面包或熟牛肉。")
 		return
 	state.flags.mansion_started=true
 	state.save_game()
@@ -286,10 +286,10 @@ func attack() -> void:
 	if not enemy is MansionGuard:return
 	if game.player.global_position.distance_to(enemy.global_position)>3.2:
 		return
-	hit_cooldown=0.55
-	if game.player.held_id!="stone_axe":
-		game.hud.toast("按 3 装备石斧，再近距离攻击。")
+	if game.player.held_id not in ["stone_axe","wood_sword"]:
+		game.hud.toast("按 5 装备木剑，或按 3 装备石斧，再近距离攻击。")
 		return
+	hit_cooldown=0.35 if game.player.held_id=="wood_sword" else 0.55
 	game.player.swing=1
 	enemy.strike()
 
@@ -354,10 +354,10 @@ func update_quest() -> void:
 	game.hud.chapter_label.text="02  /  林地府邸      ·      探索与撤退"
 	game.hud.quest_number.text="府邸考察  /  第 30–31 页"
 	game.hud.quest_title.text="准备进入林地府邸"
-	game.hud.quest_body.text="带上石斧、熟食和一块原木。\n营地南侧岔路向南走，\n对准府邸门旁告示按 E。\n阅读危险提示后再进入。"
+	game.hud.quest_body.text="带上木剑或石斧、熟食和一块原木。\n营地南侧岔路向南走，\n对准府邸门旁告示按 E。\n阅读危险提示后再进入。"
 	if state.has_flag("mansion_started"):
 		game.hud.quest_title.text="探索府邸的房间"
-		game.hud.quest_body.text="一楼：农场 %s · 雕像 %s\n二楼：储藏 %s · 悦灵 %s\n三楼：秘密房间 %s\n走廊尽头上楼\n3 石斧 · 左键攻击 · F 食物"%[done("mansion_farm"),done("mansion_clue"),done("mansion_storage"),done("mansion_allay"),done("mansion_secret")]
+		game.hud.quest_body.text="一楼：农场 %s · 雕像 %s\n二楼：储藏 %s · 悦灵 %s\n三楼：秘密房间 %s\n走廊尽头上楼\n5 木剑 / 3 石斧 · 左键攻击 · F 食物"%[done("mansion_farm"),done("mansion_clue"),done("mansion_storage"),done("mansion_allay"),done("mansion_secret")]
 	if ready_to_return():
 		game.hud.quest_title.text="带着发现回到营地"
 		game.hud.quest_body.text="沿楼梯下楼，穿过北侧正门。\n红针指向世界出生点。\n走回营地小屋，完成府邸考察。\n悦灵会跟着你。"

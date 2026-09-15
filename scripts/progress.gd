@@ -13,7 +13,7 @@ var harvested: Array = []
 var built: Array = []
 var position: Array = []
 var look: Array = []
-var journey: Dictionary = {"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10}
+var journey: Dictionary = {"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10,"waypoints":[]}
 var save_enabled := true
 var notice := ""
 
@@ -138,6 +138,8 @@ func load_game() -> bool:
 	look = data.look
 	if data.get("journey") is Dictionary:
 		journey.merge(data.journey,true)
+	if not journey.get("waypoints") is Array:
+		journey.waypoints=[]
 	if save_enabled and int(data.version)==1 and not FileAccess.file_exists(save_path+".pre-v2"):
 		DirAccess.copy_absolute(save_path,save_path+".pre-v2")
 	return true
@@ -202,5 +204,5 @@ func reset() -> void:
 	built.clear()
 	position.clear()
 	look.clear()
-	journey={"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10}
+	journey={"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10,"waypoints":[]}
 	save_game()

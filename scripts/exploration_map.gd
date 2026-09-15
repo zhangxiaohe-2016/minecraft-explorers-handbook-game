@@ -4,6 +4,35 @@ extends Control
 var world: ExplorerWorld
 var state: ExpeditionProgress
 var player: ExplorerPlayer
+var game: Node3D
+
+func toggle_waypoint(pixel: Vector2) -> Dictionary:
+	if state.count("map")==0 or not Rect2(0,0,480,480).has_point(pixel):
+		return {"ok":false,"reason":"outside"}
+	var cell:=Vector2i(floori(pixel.x/20),floori(pixel.y/20))
+	var key:=str(cell.x)+","+str(cell.y)
+	if key not in state.journey.explored:
+		return {"ok":false,"reason":"unexplored"}
+	if key in state.journey.waypoints:
+		state.journey.waypoints.erase(key)
+		state.save_game()
+		queue_redraw()
+		return {"ok":true,"removed":true}
+	if state.journey.waypoints.size()>=12:
+		return {"ok":false,"reason":"full"}
+	state.journey.waypoints.append(key)
+	state.save_game()
+	queue_redraw()
+	return {"ok":true,"removed":false}
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT:
+		var result:=toggle_waypoint(event.position)
+		if game!=null and not result.ok:
+			match result.reason:
+				"unexplored":game.hud.toast("只能在已探索的格子上放置旗标。先走过附近区域。")
+				"full":game.hud.toast("旗标已满 12 个。先点掉一个，再放置新的。")
+		accept_event()
 
 func _draw() -> void:
 	if world==null:return
@@ -29,6 +58,12 @@ func _draw() -> void:
 				if abs(wx+25)<2 and abs(wz+24)<2:color=Color("488995")
 			draw_rect(Rect2(p,Vector2(tile,tile)),color)
 	var camp:=Vector2(44,49)*5
+	for key in state.journey.waypoints:
+		var parts: PackedStringArray=str(key).split(",")
+		if parts.size()!=2:continue
+		var p:=Vector2(int(parts[0])*20+10,int(parts[1])*20+10)
+		draw_line(p-Vector2(0,7),p+Vector2(0,7),Color("b84185"),3)
+		draw_colored_polygon(PackedVector2Array([p-Vector2(0,7),p+Vector2(9,-3),p]),Color("b84185"))
 	draw_rect(Rect2(camp-Vector2(5,5),Vector2(10,10)),Color("f3d279"))
 	if state.has_flag("village_found"):
 		var village:=Vector2(23,24)*5

@@ -140,12 +140,13 @@ func _input(event: InputEvent) -> void:
 				KEY_2: equip(1)
 				KEY_3: equip(2)
 				KEY_4: equip(3)
+				KEY_5: equip(4)
 	elif event is InputEventMouseButton and event.pressed and player.active:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP: equip((slot+3)%4)
-		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN: equip((slot+1)%4)
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP: equip((slot+4)%5)
+		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN: equip((slot+1)%5)
 
 func equip(index: int) -> void:
-	var id: String = ["", "wood_pickaxe", "stone_axe", "torch"][index]
+	var id: String = ["", "wood_pickaxe", "stone_axe", "torch", "wood_sword"][index]
 	if id != "" and progress.count(id)==0:
 		hud.toast("还没有这件道具，按 Tab 查看配方。")
 		return

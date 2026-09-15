@@ -29,6 +29,7 @@ func setup(state: ExpeditionProgress, library: ExplorerArt) -> void:
 	create_camp()
 	create_temperate_landmark()
 	create_forest_route()
+	create_sunflowers()
 	restore()
 
 func river_x(z: float) -> float:
@@ -238,6 +239,31 @@ func create_temperate_landmark() -> void:
 	art.label(self, "森林瞭望台\n路线与地标", Vector3(-32, 6.0, -4), Color("e4ead2"))
 	art.chest(self, Vector3(-30.2, 2, -0.55), "lookout")
 	art.label(self, "瞭望台补给\nE  查看", Vector3(-30.2, 3.8, -0.55), Color("f3d279")).pixel_size=0.004
+
+func create_sunflowers() -> void:
+	var green:=art.color_mat(Color("40763b"))
+	var yellow:=art.color_mat(Color("f2cb35"))
+	var center:=art.color_mat(Color("a9762b"))
+	for i in range(12):
+		var x: float=-15+(i%3)*0.9
+		var z: float=3+(i/3)*1.1
+		var plant:=Node3D.new()
+		plant.name="Sunflower%d"%i
+		add_child(plant)
+		plant.position=Vector3(x,height_at(floori(x),floori(z)),z)
+		art.box(plant,Vector3(0,0.85,0),Vector3(0.06,1.7,0.06),green)
+		for level in range(3):
+			art.box(plant,Vector3(0,0.45+level*0.35,0.13 if level%2==0 else -0.13),Vector3(0.07,0.13,0.25),green)
+		# All golden flower faces point +X (east), never toward the camera.
+		art.box(plant,Vector3(-0.04,1.65,0),Vector3(0.05,0.4,0.4),green)
+		for j in range(8):
+			var angle:=j*TAU/8
+			art.box(plant,Vector3(0.02,1.65+sin(angle)*0.2,cos(angle)*0.2),Vector3(0.08,0.16,0.16),yellow)
+		var face:=art.box(plant,Vector3(0.075,1.65,0),Vector3(0.07,0.23,0.23),center,true)
+		art.mark(face,"sunflower")
+		face.get_child(0).collision_layer=2
+		plant.set_meta("flower_direction",Vector3.RIGHT)
+	art.label(self,"向日葵 · E 观察方向",Vector3(-14,4.7,5)).pixel_size=0.003
 
 func create_forest_route() -> void:
 	var white := art.color_mat(Color("dddcd1"))
