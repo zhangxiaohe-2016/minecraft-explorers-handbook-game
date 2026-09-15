@@ -150,11 +150,19 @@ func refresh() -> void:
 	update_hotbar_counts()
 
 func update_hotbar_counts() -> void:
-	var names := ["空手","木镐","石斧","火把","木剑"]
-	var ids := ["", "wood_pickaxe", "stone_axe", "torch", "wood_sword"]
+	var names := ["空手","镐","石斧","火把","木剑"]
+	var ids := ["", "best_pickaxe", "stone_axe", "torch", "wood_sword"]
 	for i in hotbar_labels.size():
 		var id: String = ids[i]
-		if id == "" or state.count(id) <= 1:
+		if id == "best_pickaxe":
+			var pick: String = state.best_pickaxe()
+			if pick == "":
+				hotbar_labels[i].text = "木镐"
+			elif state.count(pick) <= 1:
+				hotbar_labels[i].text = state.items[pick].name
+			else:
+				hotbar_labels[i].text = "%s×%d" % [state.items[pick].name, state.count(pick)]
+		elif id == "" or state.count(id) <= 1:
 			hotbar_labels[i].text = names[i]
 		else:
 			hotbar_labels[i].text = "%s×%d" % [names[i], state.count(id)]

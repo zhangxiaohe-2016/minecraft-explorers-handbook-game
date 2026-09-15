@@ -91,7 +91,7 @@
     },
     "station": true,
     "source": "Essential Items / Food and Supplies",
-    "hint": "八块圆石。在营地摆放后，可以烹饪牛肉与烧制木炭。"
+    "hint": "八块圆石。在营地摆放后，可烹饪牛肉、烧木炭、把粗铁炼成铁锭。"
   },
   {
     "id": "door",
@@ -141,5 +141,23 @@
     "station": true,
     "source": "Essential Items p.9 / Weapons p.16",
     "hint": "两块木板加一根木棍。按 5 装备；耐久 60，损坏前准备备用。"
+  },
+  {
+    "id": "stone_pickaxe",
+    "name": "石镐",
+    "cost": {"stone": 3, "stick": 2},
+    "output": {"stone_pickaxe": 1},
+    "station": true,
+    "source": "Essential Items p.9 / Tools p.17",
+    "hint": "三块圆石加两根木棍。石镐才能开采铁矿；耐久 131。"
+  },
+  {
+    "id": "iron_pickaxe",
+    "name": "铁镐",
+    "cost": {"iron_ingot": 3, "stick": 2},
+    "output": {"iron_pickaxe": 1},
+    "station": true,
+    "source": "Rewards p.10 / Tools p.17",
+    "hint": "三块铁锭加两根木棍。铁锭来自粗铁冶炼；耐久 250。"
   }
 ]

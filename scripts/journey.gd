@@ -66,9 +66,9 @@ func _process(delta: float) -> void:
 			game.hud.toast("熔炼完成，成品已放入背包。按 F 查看食物。")
 	if furnace_flame!=null: furnace_flame.visible=not state.journey.job.is_empty()
 	if menu=="furnace" and is_instance_valid(job_label):
-		job_label.text="空闲 · 可以放入食材或原木" if state.journey.job.is_empty() else "正在制作 %s · 剩余 %.1f 秒" % [state.items[state.journey.job.output].name,float(state.journey.job.remaining)]
+		job_label.text="空闲 · 可以放入食材、原木或粗铁" if state.journey.job.is_empty() else "正在制作 %s · 剩余 %.1f 秒" % [state.items[state.journey.job.output].name,float(state.journey.job.remaining)]
 		job_bar.value=0 if state.journey.job.is_empty() else 1.0-float(state.journey.job.remaining)/6.0
-		fuel_label.text="生牛肉 %d    原木 %d\n煤 %d    木炭 %d    木板 %d\n炉内还可加热 %d 次"%[state.count("raw_beef"),state.count("log"),state.count("coal"),state.count("charcoal"),state.count("plank"),int(state.journey.fuel)]
+		fuel_label.text="生牛肉 %d    原木 %d    粗铁 %d\n煤 %d    木炭 %d    木板 %d\n炉内还可加热 %d 次"%[state.count("raw_beef"),state.count("log"),state.count("raw_iron"),state.count("coal"),state.count("charcoal"),state.count("plank"),int(state.journey.fuel)]
 	if not state.has_flag("complete"):
 		hunger_label.hide()
 		last_walked=game.player.walked
@@ -268,7 +268,7 @@ func open_panel(kind: String) -> void:
 			ui.text(panel,descriptions[kind],Vector2(40,145),Vector2(950,300),25,ExplorerHUD.CREAM)
 			ui.button(panel,"记录这片森林",Rect2(40,515,950,65),"journey:observe:"+kind,true)
 		"furnace":
-			ui.text(panel,"依据第 9、14–15 页：燃料加热食材，也能把原木烧成木炭。",Vector2(34,92),Vector2(970,37),17,ExplorerHUD.MINT)
+			ui.text(panel,"依据第 9–10、14–15 页：燃料加热食材，也可烧木炭、冶炼粗铁。",Vector2(34,92),Vector2(970,37),17,ExplorerHUD.MINT)
 			job_label=ui.text(panel,"",Vector2(40,156),Vector2(950,39),22,ExplorerHUD.GOLD)
 			job_bar=ProgressBar.new()
 			job_bar.position=Vector2(40,220)
@@ -277,9 +277,10 @@ func open_panel(kind: String) -> void:
 			job_bar.show_percentage=false
 			panel.add_child(job_bar)
 			fuel_label=ui.text(panel,"",Vector2(40,285),Vector2(940,130),22)
-			ui.button(panel,"生牛肉 → 熟牛肉",Rect2(40,449,440,58),"journey:cook:cooked_beef",true)
-			ui.button(panel,"原木 → 木炭",Rect2(510,449,480,58),"journey:cook:charcoal")
-			ui.text(panel,"成品自动收进背包。离开面板后仍会继续；Esc 暂停时停止。\n优先使用煤、其次木炭、最后木板。煤或木炭可加热 8 次，本关木板可加热 1 次。",Vector2(40,552),Vector2(960,78),16,ExplorerHUD.MUTED)
+			ui.button(panel,"生牛肉 → 熟牛肉",Rect2(40,449,300,58),"journey:cook:cooked_beef",true)
+			ui.button(panel,"原木 → 木炭",Rect2(370,449,300,58),"journey:cook:charcoal")
+			ui.button(panel,"粗铁 → 铁锭",Rect2(700,449,300,58),"journey:cook:iron_ingot")
+			ui.text(panel,"成品自动收进背包。离开面板后仍会继续；Esc 暂停时停止。\n优先使用煤、其次木炭、最后木板。铁锭可制作铁镐（第 10、17 页）。",Vector2(40,552),Vector2(960,78),16,ExplorerHUD.MUTED)
 		"food":
 			ui.text(panel,"饥饿：%.1f / 20    生命：%d / 10    食物也会恢复 2 点生命。"%[float(state.journey.hunger),int(state.journey.health)],Vector2(35,95),Vector2(960,42),20,ExplorerHUD.MINT)
 			var ids:=["cooked_beef","bread","raw_beef"]

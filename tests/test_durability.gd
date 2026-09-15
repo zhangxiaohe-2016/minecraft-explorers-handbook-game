@@ -45,6 +45,19 @@ func hold_click(seconds: float) -> void:
 	Input.parse_input_event(click)
 	Input.flush_buffered_events()
 
+func press_mouse_left(hold: float) -> void:
+	var click:=InputEventMouseButton.new()
+	click.button_index=MOUSE_BUTTON_LEFT
+	click.pressed=true
+	Input.parse_input_event(click)
+	Input.flush_buffered_events()
+	await create_timer(hold).timeout
+	click=InputEventMouseButton.new()
+	click.button_index=MOUSE_BUTTON_LEFT
+	click.pressed=false
+	Input.parse_input_event(click)
+	Input.flush_buffered_events()
+
 func screenshot(name: String) -> void:
 	if DisplayServer.get_name()=="headless":return
 	await RenderingServer.frame_post_draw
@@ -112,6 +125,13 @@ func run() -> void:
 	legacy2.save_path="/tmp/explorer-durability-legacy.json"
 	legacy2.load_game()
 	check(legacy2.tool_durability.wood_pickaxe[0]==1,"migration does not reset wear after the first v3 write")
+	# .pre-v3 backup must be the untouched legacy file, not the rewritten v3.
+	var backup_path:=legacy.save_path+".pre-v3"
+	check(FileAccess.file_exists(backup_path),".pre-v3 backup file is created on first v3 migration")
+	var backup_text:=FileAccess.get_file_as_string(backup_path)
+	var backup_data=JSON.parse_string(backup_text)
+	check(backup_data is Dictionary and int(backup_data.get("version",0))==2 and not backup_data.has("tool_durability"),".pre-v3 keeps original v2 payload without durability fields")
+	check(int(backup_data.inventory.get("wood_pickaxe",0))==3,".pre-v3 preserves original tool counts")
 
 	# Integration: real gather wears pickaxe; miss and pause do not.
 	game=load("res://scenes/main.tscn").instantiate()
@@ -176,5 +196,51 @@ func run() -> void:
 	await aim(Vector3(-0.5,2.05,10),Vector3(-0.5,2.5,12))
 	game.equip(4)
 	await screenshot("durability-hud")
+
+	# Combat: successful hit wears sword; miss / no target does not.
+	live.flags.complete=true
+	live.flags.forest_complete=true
+	live.flags.mansion_started=true
+	live.add("bread",2)
+	live.add("wood_sword",2)
+	live.tool_durability.wood_sword=[5,60]
+	game.equip(4)
+	var guard: MansionGuard=null
+	for child in game.mansion.get_children():
+		if child is MansionGuard and not child.caster:guard=child
+	check(guard!=null,"mansion guard exists for combat durability")
+	if guard!=null:
+		guard.cooldown=99
+		guard.windup=0
+		guard.position=Vector3(11,4.1,4)
+		var stand:=MansionExpedition.ORIGIN+Vector3(11,4.1,2.1)
+		var look_at:=MansionExpedition.ORIGIN+Vector3(11,5.2,4)
+		await aim(stand,look_at)
+		# Air swing / no target: attack returns without wear.
+		game.target={}
+		var miss_before:=live.held_durability("wood_sword")
+		game.mansion.hit_cooldown=0
+		game.mansion.attack()
+		check(live.held_durability("wood_sword")==miss_before,"swing without a guard target does not consume sword durability")
+		# Real click hit wears once.
+		guard.position=Vector3(11,4.1,4)
+		guard.cooldown=99
+		await aim(stand,look_at)
+		game.equip(4)
+		game.mansion.hit_cooldown=0
+		var hp:=guard.health
+		var before_hit:=live.held_durability("wood_sword")
+		await press_mouse_left(0.12)
+		check(guard.health==hp-1,"real left-click damages the guard")
+		check(live.held_durability("wood_sword")==before_hit-1,"successful combat hit consumes exactly one durability")
+		# Same click held longer still blocked by cooldown, not multi-wear.
+		game.mansion.hit_cooldown=0
+		var after_one:=live.held_durability("wood_sword")
+		await press_mouse_left(0.05)
+		game.mansion.hit_cooldown=0
+		guard.position=Vector3(11,4.1,4)
+		game.target={"collider":guard}
+		game.mansion.attack()
+		check(live.held_durability("wood_sword")<=after_one,"follow-up attack is gated by cooldown")
 	print("DURABILITY RESULT: ",failures," failures")
 	quit(1 if failures else 0)

@@ -158,6 +158,7 @@ func vegetation() -> void:
 		rock.get_child(0).set_meta("resource_id",id)
 		rock.get_child(0).set_meta("kind",kind)
 		collectables[id] = rock
+	create_iron_outcrop()
 	# One GPU-instanced batch per flower colour and grass, rather than nodes per blade.
 	var batches: Dictionary = {"grass":[],"cream":[],"yellow":[],"red":[]}
 	for i in range(1900):
@@ -188,6 +189,25 @@ func vegetation() -> void:
 		var x := rng.randf_range(-65,65)
 		var z := rng.randf_range(-65,45)
 		art.box(self,Vector3(x,28+i%3*3,z),Vector3(9+i%4*3,0.8,3+i%3*2),cloud_mat)
+
+func create_iron_outcrop() -> void:
+	# Exposed teaching vein on open ground east of the stone hill; book p.10.
+	var iron_body := art.color_mat(Color("9c7b5c"))
+	var iron_fleck := art.color_mat(Color("d2b48c"))
+	var cells := [Vector2(-3.2,-9.4),Vector2(-2.3,-9.1),Vector2(-2.8,-10.2),Vector2(-1.9,-10.0),Vector2(-3.5,-10.6)]
+	for i in cells.size():
+		var id := "iron_%d" % i
+		if id in progress.harvested: continue
+		var cell: Vector2 = cells[i]
+		var y := float(height_at(int(cell.x), int(cell.y))) + 0.48
+		var pos := Vector3(cell.x, y, cell.y)
+		var rock := art.box(self,pos,Vector3(0.95,0.95,0.95),iron_body,true)
+		for offset in [Vector3(0.22,0.18,0.48),Vector3(-0.3,0.05,0.3),Vector3(0.1,-0.2,0.45),Vector3(-0.15,0.28,0.2)]:
+			art.box(rock,offset,Vector3(0.16,0.16,0.05),iron_fleck)
+		rock.get_child(0).set_meta("resource_id",id)
+		rock.get_child(0).set_meta("kind","iron")
+		collectables[id] = rock
+	art.label(self,"铁矿脉\n需要石镐",Vector3(-2.7,height_at(-3,-10)+2.2,-9.8),Color("e8c9a0")).pixel_size=0.0035
 
 func create_camp() -> void:
 	cabin = Node3D.new()

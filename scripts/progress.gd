@@ -2,8 +2,15 @@ class_name ExpeditionProgress
 extends RefCounted
 
 signal changed
-const TOOL_IDS: Array[String] = ["wood_pickaxe", "stone_axe", "wood_sword"]
-const MAX_DURABILITY := {"wood_pickaxe": 59, "stone_axe": 132, "wood_sword": 60}
+const TOOL_IDS: Array[String] = ["wood_pickaxe", "stone_pickaxe", "iron_pickaxe", "stone_axe", "wood_sword"]
+const MAX_DURABILITY := {
+	"wood_pickaxe": 59,
+	"stone_pickaxe": 131,
+	"iron_pickaxe": 250,
+	"stone_axe": 132,
+	"wood_sword": 60
+}
+const PICKAXES: Array[String] = ["iron_pickaxe", "stone_pickaxe", "wood_pickaxe"]
 var save_path := "user://expedition_v1.json"
 var items: Dictionary = {}
 var recipes: Array = []
@@ -28,6 +35,22 @@ func _init() -> void:
 
 func is_tool(id: String) -> bool:
 	return id in TOOL_IDS
+
+func best_pickaxe() -> String:
+	for id in PICKAXES:
+		if count(id) > 0:
+			return id
+	return ""
+
+func pickaxe_tier(id: String) -> int:
+	return PICKAXES.find(id)
+
+func can_mine(kind: String, held: String) -> bool:
+	if kind in ["stone", "coal"]:
+		return held in ["wood_pickaxe", "stone_pickaxe", "iron_pickaxe"]
+	if kind == "iron":
+		return held in ["stone_pickaxe", "iron_pickaxe"]
+	return true
 
 func count(id: String) -> int:
 	return int(inventory.get(id, 0))
@@ -124,14 +147,16 @@ func craft(id: String, near_bench: bool) -> String:
 func gather(id: String, kind: String) -> String:
 	if id in harvested:
 		return "这里已经采集过了。"
-	if kind in ["stone", "coal"] and count("wood_pickaxe") == 0:
+	if kind in ["stone", "coal"] and best_pickaxe() == "":
 		return "石头需要用镐开采。先在工作台制作一把木镐。"
+	if kind == "iron" and count("stone_pickaxe") + count("iron_pickaxe") == 0:
+		return "铁矿需要石镐或更好的镐。先用圆石制作石镐。"
 	harvested.append(id)
-	var amount := 3 if kind == "log" else (6 if kind == "stone" else 2)
-	add(kind, amount)
+	var amount := 3 if kind == "log" else (1 if kind == "iron" else (6 if kind == "stone" else 2))
+	add("raw_iron" if kind == "iron" else kind, amount)
 	flags["gathered_" + kind] = true
 	save_game()
-	return "+%d %s" % [amount, items[kind].name]
+	return "+%d %s" % [amount, items["raw_iron" if kind == "iron" else kind].name]
 
 func place_bench() -> bool:
 	if has_flag("bench") or not pay({"bench": 1}):
@@ -159,7 +184,7 @@ func stage() -> int:
 	if not has_flag("moved"): return 0
 	if not has_flag("gathered_log"): return 1
 	if not has_flag("bench"): return 2
-	if count("wood_pickaxe") == 0: return 3
+	if best_pickaxe() == "": return 3
 	if not has_flag("gathered_stone") or not has_flag("gathered_coal"): return 4
 	if not has_flag("shelter"): return 5
 	if not has_flag("door") or not has_flag("torch"): return 6
@@ -215,8 +240,9 @@ func load_game() -> bool:
 
 func begin_smelting(output: String) -> String:
 	if not journey.job.is_empty(): return "熔炉正在工作，等这一份完成后再放入。"
-	var ingredient := "raw_beef" if output=="cooked_beef" else "log"
-	if output not in ["cooked_beef","charcoal"]: return "未知的熔炼配方。"
+	var recipes := {"cooked_beef":"raw_beef", "charcoal":"log", "iron_ingot":"raw_iron"}
+	if not recipes.has(output): return "未知的熔炼配方。"
+	var ingredient: String = recipes[output]
 	if count(ingredient)<1: return "缺少"+str(items[ingredient].name)+"。"
 	var fuel_id := ""
 	if int(journey.fuel)<=0:

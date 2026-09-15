@@ -91,6 +91,18 @@ func wood_sword(parent: Node3D) -> Node3D:
 		box(root,Vector3(-0.008,0.3+row*0.065,0.035),Vector3(width*0.65,0.066,0.008),blade)
 	return root
 
+func pickaxe(parent: Node3D, head_color: Color) -> Node3D:
+	var root:=Node3D.new()
+	root.name="Pickaxe"
+	parent.add_child(root)
+	var handle:=color_mat(Color("6b4a2a"))
+	var head:=color_mat(head_color)
+	box(root,Vector3(0,0.12,0),Vector3(0.07,0.42,0.07),handle)
+	box(root,Vector3(0,0.34,0),Vector3(0.42,0.08,0.09),head)
+	box(root,Vector3(-0.2,0.28,0),Vector3(0.1,0.1,0.08),head)
+	box(root,Vector3(0.2,0.28,0),Vector3(0.1,0.1,0.08),head)
+	return root
+
 func furnace(parent: Node3D, pos: Vector3) -> Node3D:
 	var root := Node3D.new()
 	parent.add_child(root)

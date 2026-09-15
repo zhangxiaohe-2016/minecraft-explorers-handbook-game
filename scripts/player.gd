@@ -62,6 +62,9 @@ func hold(id: String) -> void:
 	if id=="wood_sword":
 		ExplorerArt.new().wood_sword(hand)
 		return
+	if id in ["stone_pickaxe","iron_pickaxe"]:
+		ExplorerArt.new().pickaxe(hand, Color("9aa3a1") if id=="stone_pickaxe" else Color("d8d8d0"))
+		return
 	var path := "res://assets/models/" + id + ".glb"
 	if ResourceLoader.exists(path):
 		var model: Node3D = load(path).instantiate()

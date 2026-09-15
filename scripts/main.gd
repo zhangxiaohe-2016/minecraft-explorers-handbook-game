@@ -146,8 +146,13 @@ func _input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN: equip((slot+1)%5)
 
 func equip(index: int) -> void:
-	var id: String = ["", "wood_pickaxe", "stone_axe", "torch", "wood_sword"][index]
-	if id != "" and progress.count(id)==0:
+	var id: String = ["", "", "stone_axe", "torch", "wood_sword"][index]
+	if index == 1:
+		id = progress.best_pickaxe()
+		if id == "":
+			hud.toast("还没有镐。按 Tab 在工作台制作木镐。")
+			return
+	elif id != "" and progress.count(id)==0:
 		hud.toast("还没有这件道具，按 Tab 查看配方。")
 		return
 	slot = index
@@ -160,12 +165,21 @@ func apply_wear(tool_id: String) -> void:
 	if not result.get("ok", false):
 		return
 	hud.refresh()
-	hud.update_tool_status(player.held_id)
 	var tool_name: String = progress.items[tool_id].name
 	if result.get("broken", false):
 		var backups: int = int(result.get("backups", 0))
 		if backups > 0:
 			hud.toast("%s损坏了。背包里还有 %d 把，已换上备用。" % [tool_name, backups])
+		elif tool_id.ends_with("_pickaxe"):
+			var next_pick: String = progress.best_pickaxe()
+			if next_pick != "":
+				player.hold(next_pick)
+				hud.select_slot(1)
+				slot = 1
+				hud.toast("%s损坏了。已换上%s。" % [tool_name, progress.items[next_pick].name])
+			else:
+				equip(0)
+				hud.toast("%s损坏了，没有备用镐。走近工作台按 Tab，可以再制作一把。" % tool_name)
 		else:
 			equip(0)
 			hud.toast("%s损坏了，没有备用。走近工作台按 Tab，可以再制作一把。" % tool_name)
@@ -173,6 +187,7 @@ func apply_wear(tool_id: String) -> void:
 		hud.toast("%s快坏了：耐久 %d / %d。准备一把备用。" % [tool_name, int(result.remaining), int(result.max)])
 	elif result.get("low", false):
 		hud.toast("%s磨损中：耐久 %d / %d。" % [tool_name, int(result.remaining), int(result.max)])
+	hud.update_tool_status(player.held_id)
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(hud): return
@@ -238,8 +253,10 @@ func update_hint() -> void:
 		if body.has_meta("resource_id"):
 			var kind: String = body.get_meta("kind")
 			message = state_item(kind) + "\n按住左键  采集"
-			if kind in ["stone","coal"] and player.held_id != "wood_pickaxe":
-				message = state_item(kind) + "\n需要木镐 · 制作后按 2 装备"
+			if kind in ["stone","coal"] and not progress.can_mine("stone", player.held_id):
+				message = state_item(kind) + "\n需要木镐或更好的镐 · 按 2 装备"
+			elif kind=="iron" and not progress.can_mine("iron", player.held_id):
+				message = "铁矿石\n需要石镐或更好的镐 · 先用圆石制作石镐"
 		elif body.has_meta("door"):
 			message = "木门\nE  " + ("关门" if world.door_open else "开门")
 	if message=="":
@@ -263,6 +280,8 @@ func update_hint() -> void:
 	hud.hint.text = message
 
 func state_item(id: String) -> String:
+	if id == "iron":
+		return progress.items["iron_ore"].name
 	return progress.items[id].name
 
 func update_gather(delta: float) -> void:
@@ -273,7 +292,10 @@ func update_gather(delta: float) -> void:
 		return
 	var id: String = target.collider.get_meta("resource_id")
 	var kind: String = target.collider.get_meta("kind")
-	if kind in ["stone","coal"] and player.held_id != "wood_pickaxe":
+	if kind in ["stone","coal"] and not progress.can_mine("stone", player.held_id):
+		hud.gather_bar.hide()
+		return
+	if kind=="iron" and not progress.can_mine("iron", player.held_id):
 		hud.gather_bar.hide()
 		return
 	if id!=gather_id:
@@ -288,8 +310,8 @@ func update_gather(delta: float) -> void:
 		var result := progress.gather(id,kind)
 		hud.toast(result)
 		if result.begins_with("+"):
-			if kind in ["stone","coal"] and player.held_id=="wood_pickaxe":
-				apply_wear("wood_pickaxe")
+			if kind in ["stone","coal","iron"] and player.held_id.ends_with("_pickaxe"):
+				apply_wear(player.held_id)
 			elif kind=="log" and player.held_id=="stone_axe":
 				apply_wear("stone_axe")
 		if id in progress.harvested and world.collectables.has(id):
@@ -400,7 +422,8 @@ func on_action(id: String) -> void:
 		hud.show_modal("craft")
 		hud.toast(result)
 		tone(480,0.10,0.10)
-		if recipe=="wood_pickaxe" and progress.count("wood_pickaxe")>0: equip(1)
+		if recipe in ExpeditionProgress.PICKAXES and (slot==1 or player.held_id.ends_with("_pickaxe")):
+			equip(1)
 		return
 	match id:
 		"start":

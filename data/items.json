@@ -90,5 +90,25 @@
   "wood_sword": {
     "name": "木剑",
     "color": "a87d40"
+  },
+  "stone_pickaxe": {
+    "name": "石镐",
+    "color": "9aa3a1"
+  },
+  "iron_pickaxe": {
+    "name": "铁镐",
+    "color": "d8d8d0"
+  },
+  "iron_ore": {
+    "name": "铁矿石",
+    "color": "b08968"
+  },
+  "raw_iron": {
+    "name": "粗铁",
+    "color": "c4a484"
+  },
+  "iron_ingot": {
+    "name": "铁锭",
+    "color": "d8d8d0"
   }
 }

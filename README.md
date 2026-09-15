@@ -4,7 +4,7 @@
 
 关键词：Minecraft、Explorer’s Handbook、Minecraft Explorer’s Handbook、方境、3D、Godot、Godot 4、第一人称、探索、生存、村庄、交易、地图、中文游戏。
 
-基于《Minecraft Explorer’s Handbook》图片与文字制作的中文第一人称 3D 探索游戏。当前 v0.5.2 包含林地营地、平原村庄往返、指南针、三种森林观察、三层林地府邸探索与简化战斗、木剑/地图旗标/向日葵补漏，以及工具耐久与备用切换。下一节丛林与神庙仍待开发。
+基于《Minecraft Explorer’s Handbook》图片与文字制作的中文第一人称 3D 探索游戏。当前 v0.5.3 包含林地营地、平原村庄往返、指南针、三种森林观察、三层林地府邸、木剑/地图旗标/向日葵补漏、工具耐久与备用切换，以及石镐采铁到铁镐的资源链。下一节丛林与神庙仍待开发。
 
 ## 启动
 
@@ -72,10 +72,10 @@ Godot 4.7.2 stable 已安装在上一层 `.tools/godot-4.7.2/`，不修改现有
 
 - 96×96 米林地和平原村庄、河流景观、石丘、三间村舍、水井、摊位、农田、村民与森林瞭望台。
 - 书图参考重建的木镐、石斧、木剑、火把、白床、箱子、工作台、熔炉、木门、制图台与圆石平顶小屋。
-- 23 种物品、11 个制作配方、3 个村民交易、烹饪/烧炭、46 块小屋蓝图、工作台范围限制、5 个工具槽与自动显示的指南针。
-- 木镐 59 / 木剑 60 / 石斧 132 独立耐久；有效使用磨损；损坏自动换备用；快捷栏下方显示耐久。
-- 新手目标、中文制作与背包、章节手记、安全首夜、关键动作和定时存档。
-- 地图粉色兴趣点旗标（最多 12 个）、朝东向日葵辨向观察。
+- 23+ 种物品（含粗铁/铁锭/石镐/铁镐）、13 个制作配方、3 个村民交易、烹饪/烧炭/炼铁。
+- 木镐 59 / 石镐 131 / 铁镐 250 / 木剑 60 / 石斧 132 独立耐久；快捷栏自动装备最优镐。
+- 营地南侧地表铁矿脉：石镐开采 → 熔炉粗铁 → 铁锭 → 铁镐（第 10、17 页）。
+- 地图粉色兴趣点旗标、朝东向日葵辨向观察。
 - 采集/建造/制作的简短音效。
 
 ## 当前范围
@@ -119,4 +119,6 @@ Godot 4.7.2 stable 已安装在上一层 `.tools/godot-4.7.2/`，不修改现有
 
 书籍补漏专项（木剑 / 地图旗标 / 向日葵）：`--headless --path explorer --script tests/test_book_review.gd -- --integration --fixture=res://tests/fixtures/camp_v1.json`。去掉 `--headless` 可截图核对 `artifacts/book-*.png`。
 
-工具耐久专项：`--headless --path explorer --script tests/test_durability.gd -- --integration`。不加载 camp fixture，以便从零世界采矿。
+工具耐久专项：`--headless --path explorer --script tests/test_durability.gd -- --integration`。
+
+铁镐资源链专项：`--headless --path explorer --script tests/test_iron.gd -- --integration`。
