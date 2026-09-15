@@ -10,7 +10,7 @@
 | 府邸四处提示统一为“木剑或石斧” | **已修正** |
 | tests/test_book_review.gd + test_quality_review.gd | **已存在并可运行** |
 | 工具耐久与备用工具（木镐/石斧/木剑） | **已实现并通过 D 专项**（书中 59/60/132；存档 v3） |
-| 本机启动器 / git 提交 / GitHub Release | v0.5.2 耐久版；以当轮 git/Release 为准 |
+| 本机启动器 / git 提交 / GitHub Release | **已完成**：v0.5.2，commit 7c8255c，Release <https://github.com/zhangxiaohe-2016/minecraft-explorers-handbook-game/releases/tag/v0.5.2>；本地启动器 0.5.2 |
 | 下一项开发 | 矿物获取→冶炼→铁工具/护甲；府邸视觉与 AI 独立排期；第 32 页后新章节继续暂停 |
 
 历史阶段表与下方接班步骤仅供追溯，**不要按“待创建 A 测试”等过期描述重复劳动**。复核入口：[QUALITY_REVIEW_2026-09-15.md](QUALITY_REVIEW_2026-09-15.md)。
