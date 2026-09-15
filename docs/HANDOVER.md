@@ -7,11 +7,11 @@
 | 项 | 状态 |
 |---|---|
 | 木剑 / 地图旗标 / 向日葵功能 | **已实现并通过专项验证**（见 BOOK_COVERAGE 行 09a/16a/15a/21b/25a） |
-| 府邸四处提示统一为“木剑或石斧” | **已修正**（路牌、准备目标、战斗目标、森林完成后欢迎语） |
-| tests/test_book_review.gd | **已存在并可运行**；已修正“仅木剑”与键盘 5 的前置条件 |
-| tests/test_quality_review.gd | **已存在**；GUI 鼠标点击旗标、窗口尺寸、纯木剑准入 |
-| 本机启动器 / git 提交 / GitHub Release | **已完成**：v0.5.1，commit 5a7a001，Release <https://github.com/zhangxiaohe-2016/minecraft-explorers-handbook-game/releases/tag/v0.5.1>；本地启动器 0.5.1 |
-| 下一项开发 | **工作单 B：工具耐久与备用工具**（QUALITY_REVIEW）；暂缓第 32 页后新章节 |
+| 府邸四处提示统一为“木剑或石斧” | **已修正** |
+| tests/test_book_review.gd + test_quality_review.gd | **已存在并可运行** |
+| 工具耐久与备用工具（木镐/石斧/木剑） | **已实现并通过 D 专项**（书中 59/60/132；存档 v3） |
+| 本机启动器 / git 提交 / GitHub Release | v0.5.2 耐久版；以当轮 git/Release 为准 |
+| 下一项开发 | 矿物获取→冶炼→铁工具/护甲；府邸视觉与 AI 独立排期；第 32 页后新章节继续暂停 |
 
 历史阶段表与下方接班步骤仅供追溯，**不要按“待创建 A 测试”等过期描述重复劳动**。复核入口：[QUALITY_REVIEW_2026-09-15.md](QUALITY_REVIEW_2026-09-15.md)。
 

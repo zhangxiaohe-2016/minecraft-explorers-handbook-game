@@ -260,7 +260,7 @@ func open_briefing() -> void:
 	game.set_modal("mansion")
 	var ui: ExplorerHUD=game.hud
 	ui.text(ui.modal,"林地府邸 · 进入前读一读",Vector2(40,32),Vector2(950,50),30)
-	ui.text(ui.modal,"一楼：农场补给、巨鸡雕像的秘密线索。\n二楼：储藏房与牢房，小心巡逻的卫道士。\n三楼：书架后的秘密房间，留意唤魔者的施法。\n\n5 木剑 / 3 石斧，近距离按住左键攻击。\n抬斧时后退；看见脚下红色提示时，立即走开。\nF 食物恢复饥饿和 2 点生命。Esc 暂停。\n生命耗尽回到床边，物资保留。\n\n简化战斗教学：木剑攻击间隔较短；无耐久。\n悦灵跟随；恼鬼召唤尚未加入。",Vector2(40,115),Vector2(970,420),22)
+	ui.text(ui.modal,"一楼：农场补给、巨鸡雕像的秘密线索。\n二楼：储藏房与牢房，小心巡逻的卫道士。\n三楼：书架后的秘密房间，留意唤魔者的施法。\n\n5 木剑 / 3 石斧，近距离按住左键攻击。\n抬手时后退；看见脚下红色提示时，立即走开。\nF 食物恢复饥饿和 2 点生命。Esc 暂停。\n生命耗尽回到床边，物资保留。\n\n简化战斗：木剑间隔较短；工具会磨损，记得带备用。\n悦灵跟随；恼鬼召唤尚未加入。",Vector2(40,115),Vector2(970,420),22)
 	ui.button(ui.modal,"准备好了，进入府邸",Rect2(40,577,610,60),"mansion:start",true)
 	ui.button(ui.modal,"先回去准备",Rect2(680,577,310,60),"close")
 
@@ -292,6 +292,7 @@ func attack() -> void:
 	hit_cooldown=0.35 if game.player.held_id=="wood_sword" else 0.55
 	game.player.swing=1
 	enemy.strike()
+	game.apply_wear(game.player.held_id)
 
 func hurt(amount: int) -> void:
 	if immunity>0 or not game.player.active:return

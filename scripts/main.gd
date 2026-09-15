@@ -153,6 +153,26 @@ func equip(index: int) -> void:
 	slot = index
 	player.hold(id)
 	hud.select_slot(index)
+	hud.update_tool_status(id)
+
+func apply_wear(tool_id: String) -> void:
+	var result: Dictionary = progress.wear_tool(tool_id)
+	if not result.get("ok", false):
+		return
+	hud.refresh()
+	hud.update_tool_status(player.held_id)
+	var tool_name: String = progress.items[tool_id].name
+	if result.get("broken", false):
+		var backups: int = int(result.get("backups", 0))
+		if backups > 0:
+			hud.toast("%s损坏了。背包里还有 %d 把，已换上备用。" % [tool_name, backups])
+		else:
+			equip(0)
+			hud.toast("%s损坏了，没有备用。走近工作台按 Tab，可以再制作一把。" % tool_name)
+	elif result.get("critical", false):
+		hud.toast("%s快坏了：耐久 %d / %d。准备一把备用。" % [tool_name, int(result.remaining), int(result.max)])
+	elif result.get("low", false):
+		hud.toast("%s磨损中：耐久 %d / %d。" % [tool_name, int(result.remaining), int(result.max)])
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(hud): return
@@ -267,6 +287,11 @@ func update_gather(delta: float) -> void:
 	if gather_time >= duration:
 		var result := progress.gather(id,kind)
 		hud.toast(result)
+		if result.begins_with("+"):
+			if kind in ["stone","coal"] and player.held_id=="wood_pickaxe":
+				apply_wear("wood_pickaxe")
+			elif kind=="log" and player.held_id=="stone_axe":
+				apply_wear("stone_axe")
 		if id in progress.harvested and world.collectables.has(id):
 			world.collectables[id].queue_free()
 			world.collectables.erase(id)

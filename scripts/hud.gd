@@ -21,6 +21,8 @@ var near_bench := false
 var toast_time := 0.0
 var hotbar: Array[Panel] = []
 var quest_card: Panel
+var durability_label: Label
+var hotbar_labels: Array[Label] = []
 
 const INK := Color("182d2a")
 const CREAM := Color("f2ebd4")
@@ -68,11 +70,14 @@ func setup(progress: ExpeditionProgress) -> void:
 	for i in range(5):
 		var slot := panel(root,Rect2(525+i*86,789,78,76),Color(0.07,0.15,0.13,0.9))
 		text(slot,str(i+1),Vector2(8,5),Vector2(20,18),11,MINT)
-		text(slot,["空手","木镐","石斧","火把","木剑"][i],Vector2(8,30),Vector2(63,25),16,CREAM).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var label := text(slot,["空手","木镐","石斧","火把","木剑"][i],Vector2(8,30),Vector2(63,25),16,CREAM)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		hotbar.append(slot)
+		hotbar_labels.append(label)
 	text(root,"+",Vector2(706,432),Vector2(28,28),23,CREAM).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint = text(root,"",Vector2(420,654),Vector2(600,62),19,CREAM)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	durability_label = text(root,"",Vector2(525,868),Vector2(470,24),14,MINT)
 	toast_label = text(root,"",Vector2(400,110),Vector2(640,45),19,GOLD)
 	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	gather_bar = ProgressBar.new()
@@ -142,6 +147,29 @@ func refresh() -> void:
 	if step == 5:
 		quest_body.text += "\n已放置 %d / 46 块" % state.built.size()
 	inventory_line.text = "原木 %d   木板 %d   圆石 %d   煤 %d" % [state.count("log"),state.count("plank"),state.count("stone"),state.count("coal")]
+	update_hotbar_counts()
+
+func update_hotbar_counts() -> void:
+	var names := ["空手","木镐","石斧","火把","木剑"]
+	var ids := ["", "wood_pickaxe", "stone_axe", "torch", "wood_sword"]
+	for i in hotbar_labels.size():
+		var id: String = ids[i]
+		if id == "" or state.count(id) <= 1:
+			hotbar_labels[i].text = names[i]
+		else:
+			hotbar_labels[i].text = "%s×%d" % [names[i], state.count(id)]
+
+func update_tool_status(held_id: String) -> void:
+	if durability_label == null:
+		return
+	if held_id in state.TOOL_IDS and state.count(held_id) > 0:
+		var left := state.held_durability(held_id)
+		var max_d := int(state.MAX_DURABILITY[held_id])
+		var ratio := 0.0 if max_d <= 0 else float(left) / float(max_d)
+		durability_label.text = "%s  耐久 %d / %d  共 %d 把" % [state.items[held_id].name, left, max_d, state.count(held_id)]
+		durability_label.add_theme_color_override("font_color", GOLD if ratio <= 0.25 else CREAM)
+	else:
+		durability_label.text = ""
 
 func select_slot(index: int) -> void:
 	for i in hotbar.size():
@@ -201,6 +229,8 @@ func show_modal(kind: String) -> void:
 			var costs := ""
 			for id in recipe.cost:
 				costs += "%s %d/%d  " % [state.items[id].name,state.count(id),int(recipe.cost[id])]
+			if state.is_tool(recipe.id):
+				costs += "耐久 %d  " % int(state.MAX_DURABILITY[recipe.id])
 			text(card,costs,Vector2(14,47),Vector2(288,27),13,MINT if state.can_pay(recipe.cost) else GOLD)
 			text(card,"需要工作台" if recipe.station else "随身可制作",Vector2(14,82),Vector2(140,22),12,MUTED)
 			var available: bool = state.can_pay(recipe.cost) and (near_bench or not recipe.station)

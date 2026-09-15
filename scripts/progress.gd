@@ -2,6 +2,8 @@ class_name ExpeditionProgress
 extends RefCounted
 
 signal changed
+const TOOL_IDS: Array[String] = ["wood_pickaxe", "stone_axe", "wood_sword"]
+const MAX_DURABILITY := {"wood_pickaxe": 59, "stone_axe": 132, "wood_sword": 60}
 var save_path := "user://expedition_v1.json"
 var items: Dictionary = {}
 var recipes: Array = []
@@ -14,6 +16,7 @@ var built: Array = []
 var position: Array = []
 var look: Array = []
 var journey: Dictionary = {"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10,"waypoints":[]}
+var tool_durability: Dictionary = {}
 var save_enabled := true
 var notice := ""
 
@@ -23,14 +26,67 @@ func _init() -> void:
 	chapters = JSON.parse_string(FileAccess.get_file_as_string("res://data/chapters.json"))
 	trades = JSON.parse_string(FileAccess.get_file_as_string("res://data/trades.json"))
 
+func is_tool(id: String) -> bool:
+	return id in TOOL_IDS
+
 func count(id: String) -> int:
 	return int(inventory.get(id, 0))
 
 func has_flag(id: String) -> bool:
 	return bool(flags.get(id, false))
 
+func sync_tools() -> void:
+	for id in TOOL_IDS:
+		if not tool_durability.get(id) is Array:
+			tool_durability[id] = []
+		var list: Array = tool_durability[id]
+		var n := count(id)
+		while list.size() > n:
+			list.pop_back()
+		while list.size() < n:
+			list.append(MAX_DURABILITY[id])
+
+func held_durability(id: String) -> int:
+	if not is_tool(id) or count(id) <= 0:
+		return -1
+	sync_tools()
+	var list: Array = tool_durability[id]
+	if list.is_empty():
+		return -1
+	return clampi(int(list[0]), 0, int(MAX_DURABILITY[id]))
+
+func wear_tool(id: String, amount := 1) -> Dictionary:
+	if not is_tool(id) or amount <= 0 or count(id) <= 0:
+		return {"ok": false}
+	sync_tools()
+	var list: Array = tool_durability[id]
+	if list.is_empty():
+		return {"ok": false}
+	var max_d := int(MAX_DURABILITY[id])
+	var left := maxi(0, int(list[0]) - amount)
+	list[0] = left
+	var broken := left <= 0
+	if broken:
+		list.pop_front()
+		inventory[id] = count(id) - 1
+		if inventory[id] <= 0:
+			inventory.erase(id)
+	changed.emit()
+	save_game()
+	return {
+		"ok": true,
+		"broken": broken,
+		"remaining": left,
+		"backups": count(id),
+		"low": (not broken) and left * 5 <= max_d,
+		"critical": (not broken) and left * 10 <= max_d,
+		"max": max_d
+	}
+
 func add(id: String, amount: int) -> void:
 	inventory[id] = count(id) + amount
+	if is_tool(id):
+		sync_tools()
 	changed.emit()
 
 func can_pay(cost: Dictionary) -> bool:
@@ -44,6 +100,8 @@ func pay(cost: Dictionary) -> bool:
 		return false
 	for id in cost:
 		inventory[id] = count(id) - int(cost[id])
+		if is_tool(id):
+			sync_tools()
 	changed.emit()
 	return true
 
@@ -110,8 +168,9 @@ func stage() -> int:
 func save_game() -> void:
 	if not save_enabled:
 		return
-	var data := {"version": 2, "chapter": "temperate" if has_flag("complete") else "camp", "inventory": inventory, "flags": flags,
-		"harvested": harvested, "built": built, "position": position, "look": look, "journey":journey}
+	sync_tools()
+	var data := {"version": 3, "chapter": "temperate" if has_flag("complete") else "camp", "inventory": inventory, "flags": flags,
+		"harvested": harvested, "built": built, "position": position, "look": look, "journey":journey, "tool_durability": tool_durability}
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(data, "\t", true, true))
@@ -122,7 +181,7 @@ func load_game() -> bool:
 	if not FileAccess.file_exists(save_path):
 		return false
 	var data = JSON.parse_string(FileAccess.get_file_as_string(save_path))
-	if not data is Dictionary or int(data.get("version", 0)) not in [1,2]:
+	if not data is Dictionary or int(data.get("version", 0)) not in [1,2,3]:
 		return false
 	for key in ["inventory", "flags"]:
 		if not data.get(key) is Dictionary: return false
@@ -140,8 +199,18 @@ func load_game() -> bool:
 		journey.merge(data.journey,true)
 	if not journey.get("waypoints") is Array:
 		journey.waypoints=[]
-	if save_enabled and int(data.version)==1 and not FileAccess.file_exists(save_path+".pre-v2"):
+	tool_durability = {}
+	if data.get("tool_durability") is Dictionary:
+		for id in TOOL_IDS:
+			tool_durability[id] = []
+			if data.tool_durability.get(id) is Array:
+				for value in data.tool_durability[id]:
+					tool_durability[id].append(clampi(int(value), 0, int(MAX_DURABILITY[id])))
+	sync_tools()
+	if save_enabled and int(data.version) < 2 and not FileAccess.file_exists(save_path+".pre-v2"):
 		DirAccess.copy_absolute(save_path,save_path+".pre-v2")
+	if save_enabled and int(data.version) < 3 and not FileAccess.file_exists(save_path+".pre-v3"):
+		DirAccess.copy_absolute(save_path,save_path+".pre-v3")
 	return true
 
 func begin_smelting(output: String) -> String:
@@ -205,4 +274,6 @@ func reset() -> void:
 	position.clear()
 	look.clear()
 	journey={"hunger":20.0,"time":0.0,"explored":[],"crops":{},"job":{},"fuel":0,"spawn":[],"health":10,"waypoints":[]}
+	tool_durability={}
+	sync_tools()
 	save_game()

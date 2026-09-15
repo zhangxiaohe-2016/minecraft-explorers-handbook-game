@@ -82,6 +82,16 @@
 
 上节“仅木剑准入”及地图真实点击的证据不充分：fixture 仍有石斧，旗标测试调用内部函数。本轮新增 test_quality_review.gd，清空石斧后验证准入，并通过 GUI 事件验证地图增删和不同窗口尺寸；headless 与原生 Metal 均 0 failures。
 
+## 工作单 B：工具耐久与备用工具（2026-09-15）
+
+依据印刷第 9、16–17 页：木镐 59、木剑 60、石斧 132（书中材料耐久表）。火把/空手无耐久。
+
+- `tests/test_durability.gd`（证据代号 D）headless 与原生 Metal 均 **0 failures**。
+- 覆盖：独立同类实例；有效采矿/命中才磨损；暂停不耗；低/关键提示；损坏仅一件；备用自动切换；无备用回空手；制作满耐久；读档不刷新、不复制；v1/v2 迁移保留数量并一次初始化，`.pre-v3` 备份。
+- 原生截图 `artifacts/durability-hud.png`：快捷栏下方显示「木剑 耐久 60 / 60 共 1 把」，不遮挡准星。
+- 同轮回归：progress、playthrough（从零）、village、forest、mansion、reloadcheck、book_review、quality_review 均 0 failures。
+- 范围外：护甲、维修台、附魔、石镐/铁器、完整九槽背包。
+
 ## 工作单 A 交付收尾（2026-09-15）
 
 - 统一四处府邸提示：路牌、准备目标、战斗目标、森林完成后欢迎语，均为“木剑或石斧”，战斗写 5/3。

@@ -15,7 +15,7 @@ contents = root / '方境.app/Contents'
 info = {
     'CFBundleName': '方境', 'CFBundleDisplayName': '方境 · 探索者手记',
     'CFBundleIdentifier': 'local.explorers.handbook',
-    'CFBundleVersion': '0.5.1', 'CFBundleShortVersionString': '0.5.1',
+    'CFBundleVersion': '0.5.2', 'CFBundleShortVersionString': '0.5.2',
     'CFBundleExecutable': 'Launch', 'CFBundlePackageType': 'APPL',
     'CFBundleIconFile': 'Game.icns', 'NSHighResolutionCapable': True,
 }
