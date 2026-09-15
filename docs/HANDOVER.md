@@ -11,7 +11,7 @@
 | tests/test_book_review.gd + test_quality_review.gd | **已存在并可运行** |
 | 工具耐久与备用工具（木镐/石镐/铁镐/石斧/木剑） | **已实现并通过 D 专项** |
 | 石镐采铁 → 粗铁 → 铁锭 → 铁镐 | **已实现并通过 I 专项**（不使用赠送箱） |
-| 本机启动器 / git 提交 / GitHub Release | v0.5.3；以当轮 git/Release 为准 |
+| 本机启动器 / git 提交 / GitHub Release | **已完成**：v0.5.3，commit 9078c18，Release <https://github.com/zhangxiaohe-2016/minecraft-explorers-handbook-game/releases/tag/v0.5.3>；本地启动器 0.5.3 |
 | 下一项开发 | 护甲四槽与减伤；或府邸视觉/AI；第 32 页后新章节继续暂停 |
 
 历史阶段表与下方接班步骤仅供追溯，**不要按“待创建 A 测试”等过期描述重复劳动**。复核入口：[QUALITY_REVIEW_2026-09-15.md](QUALITY_REVIEW_2026-09-15.md)。
